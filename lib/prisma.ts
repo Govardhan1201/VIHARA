@@ -1,21 +1,20 @@
 import { PrismaClient } from '@prisma/client'
 
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
 }
 
-// Only initialize if DATABASE_URL is available (skip during static build analysis)
-const createPrismaClient = () => {
-  if (!process.env.DATABASE_URL) {
-    // Return a mock-like placeholder during build when no DB URL is available
-    return null as unknown as PrismaClient
+const prismaClientSingleton = () => {
+  try {
+    return new PrismaClient()
+  } catch (e) {
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return null as any as PrismaClient
+    }
+    throw e
   }
-  return new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL,
-  })
 }
 
-export const prisma = globalThis.prisma ?? createPrismaClient()
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma ?? undefined
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
