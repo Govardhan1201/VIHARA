@@ -4,167 +4,163 @@ import { useState, useEffect } from 'react';
 const ADMIN_PASSWORD = 'vihara123';
 
 export default function AdminPage() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState(false);
-  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [auth, setAuth] = useState(false);
+  const [pw, setPw] = useState('');
+  const [err, setErr] = useState(false);
+  const [subs, setSubs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState<'pending'|'approved'|'rejected'>('pending');
 
   const login = () => {
-    if (password === ADMIN_PASSWORD) { setAuthenticated(true); setLoginError(false); fetchSubmissions(); }
-    else { setLoginError(true); setPassword(''); }
+    if (pw === ADMIN_PASSWORD) { setAuth(true); setErr(false); fetchSubs(); }
+    else { setErr(true); setPw(''); }
   };
 
-  const logout = () => { setAuthenticated(false); setPassword(''); setSubmissions([]); };
+  const logout = () => { setAuth(false); setPw(''); setSubs([]); };
 
-  const fetchSubmissions = async () => {
+  const fetchSubs = async () => {
     setLoading(true);
-    try {
-      const res = await fetch('/api/submissions');
-      const data = await res.json();
-      setSubmissions(data.submissions || []);
-    } catch {} finally { setLoading(false); }
+    try { const r = await fetch('/api/submissions'); const d = await r.json(); setSubs(d.submissions||[]); }
+    catch {} finally { setLoading(false); }
   };
 
-  const updateStatus = async (id: string, status: string) => {
-    try {
-      const res = await fetch(`/api/submissions/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
-      if (res.ok) fetchSubmissions();
-    } catch {}
+  const updateStatus = async (id:string, status:string) => {
+    try { await fetch(`/api/submissions/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ status }) }); fetchSubs(); }
+    catch {}
   };
 
-  const pending = submissions.filter(s => s.status === 'PENDING');
-  const approved = submissions.filter(s => s.status === 'APPROVED');
+  const pending = subs.filter(s=>s.status==='PENDING');
+  const approved = subs.filter(s=>s.status==='APPROVED');
+  const rejected = subs.filter(s=>s.status==='REJECTED');
+
+  const stats = [
+    { value:subs.length, label:'Total Submissions', color:'var(--gold)' },
+    { value:pending.length, label:'Pending Review', color:'#f59e0b' },
+    { value:approved.length, label:'Approved Gems', color:'#10b981' },
+    { value:rejected.length, label:'Rejected', color:'#ef4444' },
+  ];
+
+  const shown = tab==='pending' ? pending : tab==='approved' ? approved : rejected;
 
   return (
-    <div>
+    <div style={{ maxWidth:1000, margin:'0 auto' }}>
       <div className="page-hero">
         <h1>🔐 Admin Panel</h1>
-        <p className="tagline">Review and approve community submissions</p>
+        <p className="tagline">Review, approve and manage community destination submissions</p>
       </div>
 
-      {!authenticated ? (
-        /* Login Screen */
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
-          <div className="glass-card" style={{ padding: '48px', maxWidth: 400, width: '100%', textAlign: 'center', border: '1px solid rgba(250,196,150,0.3)' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
-            <h2 style={{ fontFamily: 'var(--font-heading)', color: 'var(--accent-gold)', fontSize: '24px', marginBottom: '8px' }}>Admin Login</h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '28px', fontSize: '13px' }}>Enter password to access admin controls</p>
-            <div className="form-group" style={{ marginBottom: '16px' }}>
-              <label className="field-label">Password</label>
-              <input
-                type="password"
-                className="field-input"
-                placeholder="Enter admin password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && login()}
-                style={{ textAlign: 'center', fontSize: '16px' }}
-              />
+      {!auth ? (
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'45vh' }}>
+          <div className="glass glass-gold" style={{ padding:'52px 44px', maxWidth:420, width:'100%', textAlign:'center', borderRadius:'var(--r-xl)' }}>
+            <div style={{ fontSize:'52px', marginBottom:'16px' }}>🔐</div>
+            <h2 style={{ fontFamily:'var(--heading)', fontSize:'26px', fontWeight:800, color:'var(--gold)', marginBottom:'8px' }}>Admin Login</h2>
+            <p style={{ color:'var(--text-muted)', marginBottom:'32px', fontSize:'13px' }}>Enter your password to access the admin dashboard</p>
+            <div style={{ marginBottom:'16px' }}>
+              <label className="field-label">Admin Password</label>
+              <input type="password" className="field-input" placeholder="••••••••"
+                value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()}
+                style={{ textAlign:'center', fontSize:'18px', letterSpacing:'4px' }} />
             </div>
-            {loginError && <p style={{ color: '#ef4444', fontSize: '12px', marginBottom: '12px' }}>❌ Incorrect password. Try again.</p>}
-            <button className="btn-gold" onClick={login} style={{ width: '100%', padding: '13px', fontSize: '14px' }}>🔓 Login</button>
+            {err && <p style={{ color:'#ef4444', fontSize:'12px', marginBottom:'14px' }}>❌ Incorrect password. Please try again.</p>}
+            <button onClick={login} className="btn btn-primary" style={{ width:'100%', padding:'14px', fontSize:'14px', justifyContent:'center', borderRadius:'var(--r-sm)' }}>
+              🔓 Login to Dashboard
+            </button>
           </div>
         </div>
       ) : (
-        /* Admin Dashboard */
-        <div>
-          {/* Header Row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
+        <>
+          {/* Top Bar */}
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'28px', flexWrap:'wrap', gap:'12px' }}>
             <div>
-              <h2 style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-primary)', fontSize: '22px' }}>🎯 Admin Dashboard</h2>
-              <div className="admin-badge" style={{ marginTop: '8px', marginBottom: 0 }}>✅ Logged in as Admin</div>
+              <h2 style={{ fontFamily:'var(--heading)', fontSize:'22px', fontWeight:800 }}>Admin Dashboard</h2>
+              <div style={{ display:'inline-flex', alignItems:'center', gap:'6px', marginTop:'6px', padding:'4px 12px', borderRadius:'20px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.25)', fontSize:'11px', color:'#10b981', fontWeight:600 }}>
+                <span style={{ width:7, height:7, borderRadius:'50%', background:'#10b981', display:'inline-block' }}/>
+                Logged in as Admin
+              </div>
             </div>
-            <button onClick={logout} style={{ padding: '10px 20px', background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
-              🚪 Logout
-            </button>
+            <button onClick={logout} className="btn btn-danger" style={{ fontSize:'13px' }}>🚪 Logout</button>
           </div>
 
-          {/* Stats Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-            {[
-              { label: 'Total Submissions', value: submissions.length, color: 'var(--accent-gold)' },
-              { label: 'Pending Review', value: pending.length, color: '#f59e0b' },
-              { label: 'Approved Gems', value: approved.length, color: '#10b981' },
-              { label: 'Rejected', value: submissions.filter(s => s.status === 'REJECTED').length, color: '#ef4444' },
-            ].map(stat => (
-              <div key={stat.label} className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-heading)', fontSize: '32px', fontWeight: 700, color: stat.color }}>{stat.value}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>{stat.label}</div>
+          {/* Stats Grid */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'16px', marginBottom:'32px' }}>
+            {stats.map(s=>(
+              <div key={s.label} className="stat-card">
+                <span className="stat-value" style={{ color:s.color }}>{s.value}</span>
+                <span className="stat-label">{s.label}</span>
               </div>
             ))}
           </div>
 
-          {/* Pending Approvals */}
-          <div className="section-title" style={{ marginBottom: '16px' }}>⏳ Pending Approvals ({pending.length})</div>
+          {/* Tabs */}
+          <div style={{ display:'flex', gap:'8px', marginBottom:'24px', borderBottom:'1px solid var(--border)', paddingBottom:'0' }}>
+            {(['pending','approved','rejected'] as const).map(t=>(
+              <button key={t} onClick={()=>setTab(t)}
+                style={{ padding:'10px 20px', background:'none', border:'none', cursor:'pointer', fontFamily:'var(--font)', fontWeight:600, fontSize:'13px', color:tab===t?'var(--gold)':'var(--text-muted)', borderBottom:`2px solid ${tab===t?'var(--gold)':'transparent'}`, marginBottom:'-1px', transition:'all var(--dur)', textTransform:'capitalize' }}>
+                {t} ({t==='pending'?pending.length:t==='approved'?approved.length:rejected.length})
+              </button>
+            ))}
+          </div>
+
           {loading ? (
-            <p style={{ color: 'var(--text-secondary)', padding: '20px' }}>Loading...</p>
-          ) : pending.length === 0 ? (
-            <div className="glass-card" style={{ padding: '40px', textAlign: 'center', marginBottom: '32px' }}>
-              <p style={{ color: 'var(--text-secondary)' }}>No pending submissions at the moment. Check back soon! ✨</p>
+            <div style={{ textAlign:'center', padding:'40px', color:'var(--text-muted)' }}>Loading submissions...</div>
+          ) : shown.length===0 ? (
+            <div className="glass" style={{ padding:'52px', textAlign:'center', borderRadius:'var(--r-lg)' }}>
+              <div style={{ fontSize:'36px', marginBottom:'10px' }}>{tab==='pending'?'✅':tab==='approved'?'🌟':'🚫'}</div>
+              <p style={{ color:'var(--text-muted)' }}>No {tab} submissions.</p>
             </div>
-          ) : (
-            <div style={{ display: 'grid', gap: '16px', marginBottom: '40px' }}>
-              {pending.map((s: any) => (
-                <div key={s.id} className="glass-card" style={{ padding: '24px', borderLeft: '3px solid var(--accent-gold)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ color: 'var(--accent-gold)', fontFamily: 'var(--font-heading)', fontSize: '17px', marginBottom: '10px' }}>
+          ) : tab==='pending' ? (
+            <div style={{ display:'grid', gap:'16px' }}>
+              {shown.map((s:any)=>(
+                <div key={s.id} className="submission-card">
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:'14px' }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontFamily:'var(--heading)', color:'var(--gold)', fontSize:'18px', fontWeight:700, marginBottom:'12px' }}>
                         {s.emoji} {s.placeName}
-                      </h3>
-                      <div style={{ display: 'grid', gap: '5px', fontSize: '13px' }}>
-                        {[
-                          ['Submitted by', `${s.submitterName} (${s.submitterEmail})`],
-                          ['Date', new Date(s.createdAt).toLocaleDateString()],
-                          ['Description', s.description],
-                          ['Location', `${s.subZone}, ${s.state}`],
-                          ['Details', `${s.activity} • ${s.duration} • ₹${s.budget} • ${s.transport}`],
-                        ].map(([k, v]) => (
-                          <div key={k} style={{ display: 'flex', gap: '10px' }}>
-                            <span style={{ color: 'var(--text-secondary)', minWidth: '110px', fontWeight: 500 }}>{k}</span>
-                            <span style={{ color: 'var(--text-primary)', flex: 1 }}>{v}</span>
+                      </div>
+                      <div style={{ display:'grid', gap:'7px', fontSize:'13px' }}>
+                        {[['Submitted by',`${s.submitterName} (${s.submitterEmail})`],['Date',new Date(s.createdAt).toLocaleDateString()],['Description',s.description],['Location',`${s.subZone}, ${s.state}`],['Details',`${s.activity} · ${s.duration} · ₹${s.budget} · ${s.transport}`]].map(([k,v])=>(
+                          <div key={k} style={{ display:'flex', gap:'12px' }}>
+                            <span style={{ color:'var(--text-muted)', minWidth:'110px', fontWeight:600, flexShrink:0 }}>{k}</span>
+                            <span style={{ color:'var(--text)' }}>{v}</span>
                           </div>
                         ))}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                      <button className="approve-btn" onClick={() => updateStatus(s.id, 'APPROVED')}>✅ Approve</button>
-                      <button className="reject-btn" onClick={() => updateStatus(s.id, 'REJECTED')}>❌ Reject</button>
+                    <div style={{ display:'flex', gap:'8px', flexShrink:0, alignItems:'center' }}>
+                      <button className="btn btn-success" onClick={()=>updateStatus(s.id,'APPROVED')} style={{ fontSize:'12px' }}>✅ Approve</button>
+                      <button className="btn btn-danger" onClick={()=>updateStatus(s.id,'REJECTED')} style={{ fontSize:'12px' }}>❌ Reject</button>
                     </div>
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {/* Approved Gems */}
-          <div className="section-title" style={{ marginBottom: '16px' }}>✅ Approved Gems ({approved.length})</div>
-          {approved.length === 0 ? (
-            <div className="glass-card" style={{ padding: '40px', textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-secondary)' }}>No approved submissions yet.</p>
             </div>
           ) : (
-            <div className="destinations-grid">
-              {approved.map((s: any) => (
-                <div key={s.id} className="destination-card">
-                  <div className="card-image">{s.emoji}</div>
-                  <div className="card-body">
-                    <div className="card-name">{s.placeName}</div>
-                    <div className="card-desc">{s.description}</div>
-                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                      By: {s.submitterName}
-                    </p>
-                    <div className="card-tags">
-                      <span className="card-tag">📍 {s.state}</span>
-                      <span className="card-tag">⏱ {s.duration}</span>
-                      <span className="card-tag">💰 ₹{s.budget}</span>
+            <div className="dest-grid">
+              {shown.map((s:any)=>(
+                <div key={s.id} className="dest-card" style={{ borderColor: tab==='approved'?'rgba(16,185,129,0.2)':'rgba(239,68,68,0.2)' }}>
+                  <div className="dest-card-img">{s.emoji}</div>
+                  <div className="dest-card-body">
+                    <div style={{ marginBottom:'6px' }}>
+                      {tab==='approved'
+                        ? <span className="badge badge-approved">✅ Approved</span>
+                        : <span className="badge" style={{ background:'rgba(239,68,68,0.1)', color:'#ef4444', border:'1px solid rgba(239,68,68,0.25)' }}>❌ Rejected</span>}
                     </div>
+                    <div className="dest-card-name">{s.placeName}</div>
+                    <div className="dest-card-desc">{s.description}</div>
+                    <p style={{ fontSize:'11px', color:'var(--text-muted)', marginBottom:'10px' }}>By: {s.submitterName}</p>
+                    <div className="dest-tags">
+                      <span className="dest-tag">📍 {s.state}</span>
+                      <span className="dest-tag gold">₹{s.budget}</span>
+                    </div>
+                    {tab==='approved' && (
+                      <button className="btn btn-danger" style={{ marginTop:'12px', fontSize:'11px', width:'100%', justifyContent:'center' }} onClick={()=>updateStatus(s.id,'REJECTED')}>Revoke</button>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );
