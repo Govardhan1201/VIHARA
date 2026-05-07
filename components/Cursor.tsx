@@ -2,34 +2,34 @@
 import { useEffect, useState } from 'react';
 
 export default function Cursor() {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isPointer, setIsPointer] = useState(false);
+  const [pos, setPos] = useState({ x: -100, y: -100 });
+  const [hov, setHov] = useState(false);
 
   useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      const target = e.target as HTMLElement;
-      setIsPointer(window.getComputedStyle(target).cursor === 'pointer');
+    const move = (e: MouseEvent) => {
+      setPos({ x: e.clientX, y: e.clientY });
+      setHov((e.target as HTMLElement)?.closest('a,button,[role=button]') !== null);
     };
-    
-    window.addEventListener('mousemove', onMouseMove);
-    return () => window.removeEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', move);
+    return () => window.removeEventListener('mousemove', move);
   }, []);
 
   return (
     <>
-      <div 
-        className="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-primary-500 pointer-events-none z-[100] transition-transform duration-100 ease-out hidden md:block mix-blend-difference"
-        style={{ 
-          transform: `translate(${position.x - 16}px, ${position.y - 16}px) scale(${isPointer ? 1.5 : 1})`,
-        }}
-      />
-      <div 
-        className="fixed top-0 left-0 w-2 h-2 bg-primary-500 rounded-full pointer-events-none z-[100] hidden md:block mix-blend-difference"
-        style={{ 
-          transform: `translate(${position.x - 4}px, ${position.y - 4}px)` 
-        }}
-      />
+      <div style={{
+        position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: 9999,
+        width: hov ? 40 : 28, height: hov ? 40 : 28,
+        border: '2px solid rgba(250,196,150,0.7)',
+        borderRadius: '50%', mixBlendMode: 'difference',
+        transform: `translate(${pos.x - (hov?20:14)}px, ${pos.y - (hov?20:14)}px)`,
+        transition: 'width 0.2s, height 0.2s, transform 0.08s linear',
+      }} />
+      <div style={{
+        position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: 9999,
+        width: 6, height: 6, background: 'var(--gold)', borderRadius: '50%',
+        transform: `translate(${pos.x - 3}px, ${pos.y - 3}px)`,
+        transition: 'transform 0.04s linear',
+      }} />
     </>
   );
 }

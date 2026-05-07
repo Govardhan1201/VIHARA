@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
 import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -8,9 +7,6 @@ import { notFound } from 'next/navigation';
 import AppHeader from '@/components/AppHeader';
 import AIChatbot from '@/components/AIChatbot';
 import Cursor from '@/components/Cursor';
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
   title: "VIHARA | Discover India's Hidden Gems",
@@ -29,8 +25,13 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className={`${inter.variable} ${outfit.variable}`}>
-      <body style={{ background: 'var(--bg-primary)', color: 'var(--text-secondary)', overflowX: 'hidden' }}>
+    <html lang={locale}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+      </head>
+      <body>
         <NextIntlClientProvider messages={messages}>
           <Cursor />
           <AppHeader />
