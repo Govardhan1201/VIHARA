@@ -6,28 +6,23 @@ datasource db {
   provider = "postgresql"
 }
 
-model Destination {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  location    String
-  latitude    Float
-  longitude   Float
-  state       String
-  budget      String   // e.g., "Low", "Medium", "High"
-  duration    Int      // in days
-  category    String   // e.g., "Nature", "Heritage", "Adventure"
-  image       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
 model Submission {
-  id          String   @id @default(cuid())
-  name        String
-  email       String
-  destination String
-  reason      String
-  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  createdAt   DateTime @default(now())
+  id             String   @id @default(cuid())
+  placeName      String
+  state          String
+  subZone        String
+  description    String
+  activity       String
+  duration       String
+  budget         Int
+  transport      String
+  accommodation  String
+  emoji          String   @default("🌟")
+  mapLink        String?
+  imageLink      String?
+  videoLink      String?
+  submitterName  String
+  submitterEmail String
+  status         String   @default("PENDING")
+  createdAt      DateTime @default(now())
 }

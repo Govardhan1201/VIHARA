@@ -5,16 +5,16 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
-import Cursor from '@/components/Cursor';
+import AppHeader from '@/components/AppHeader';
 import AIChatbot from '@/components/AIChatbot';
-import SmoothLoader from '@/components/SmoothLoader';
+import Cursor from '@/components/Cursor';
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
   title: "VIHARA | Discover India's Hidden Gems",
-  description: "A premium travel guide to India's untouched destinations.",
+  description: "Wander the Unseen. Discover the Soul of Bharat. Authentic off-beat destinations across India.",
 };
 
 export default async function LocaleLayout({
@@ -25,20 +25,18 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }>) {
   const { locale } = await params;
-
-  if (!routing.locales.includes(locale as any)) {
-    notFound();
-  }
-
+  if (!routing.locales.includes(locale as any)) notFound();
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className={`${inter.variable} ${outfit.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-950 text-white font-sans overflow-x-hidden">
+    <html lang={locale} className={`${inter.variable} ${outfit.variable}`}>
+      <body style={{ background: 'var(--bg-primary)', color: 'var(--text-secondary)', overflowX: 'hidden' }}>
         <NextIntlClientProvider messages={messages}>
-          <SmoothLoader />
           <Cursor />
-          {children}
+          <AppHeader />
+          <main className="main-content">
+            {children}
+          </main>
           <AIChatbot />
         </NextIntlClientProvider>
       </body>

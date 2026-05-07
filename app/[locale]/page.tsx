@@ -1,50 +1,59 @@
-import { useTranslations } from 'next-intl';
-import Hero3D from '@/components/Hero3D';
-import Navbar from '@/components/Navbar';
-import { Link } from '@/i18n/routing';
+import Link from 'next/link';
 
-export default function Home() {
-  const t = useTranslations('Home');
+const introCards = [
+  { icon: '🏖️', title: 'Hidden Gems', desc: 'Discover lesser-known destinations across India with authentic travel experiences away from the tourist crowds.' },
+  { icon: '💰', title: 'Budget Friendly', desc: 'Smart filtering by budget, transport, and accommodation to match every traveler\'s needs and pocket.' },
+  { icon: '🗺️', title: 'Interactive Map', desc: 'Explore destinations on an interactive map with state zones, sub-zones and real-time location tracking.' },
+  { icon: '🔄', title: 'Converters', desc: 'Convert currencies, time zones, distances, weights, and speeds instantly — your all-in-one travel toolkit.' },
+  { icon: '✈️', title: 'Travel Planning', desc: 'Get detailed information on duration, transport options, and activities for every destination.' },
+  { icon: '🎯', title: 'Share Your Gems', desc: 'Submit your own hidden gem locations and help other travelers discover the untouched beauty of India.' },
+];
 
+export default function HomePage() {
   return (
-    <main className="relative min-h-screen flex flex-col">
-      <Navbar />
-      
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <Hero3D />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 to-slate-950 z-0"></div>
-        
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-            {t('heroTitle')}
-          </h1>
-          <p className="text-lg md:text-2xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            {t('heroSubtitle')}
-          </p>
-          <Link 
-            href="/explore" 
-            className="inline-block px-8 py-4 bg-primary-600 hover:bg-primary-500 text-white rounded-full font-semibold transition-all transform hover:scale-105"
-          >
-            {t('exploreBtn')}
-          </Link>
-        </div>
+    <div>
+      {/* Hero */}
+      <section style={{ textAlign: 'center', padding: '64px 24px 48px', borderBottom: '1px solid var(--border-color)', marginBottom: '48px' }}>
+        <div style={{ fontSize: '56px', marginBottom: '16px' }}>🌍</div>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(36px, 6vw, 60px)', fontWeight: 800, letterSpacing: '-1px', marginBottom: '12px', color: 'var(--text-primary)' }}>
+          VIHARA
+        </h1>
+        <p style={{ fontSize: '20px', color: 'var(--accent-gold)', fontStyle: 'italic', marginBottom: '16px' }}>
+          Wander the Unseen. Discover the Soul of Bharat.
+        </p>
+        <p style={{ fontSize: '15px', color: 'var(--text-secondary)', maxWidth: '560px', margin: '0 auto 36px', lineHeight: 1.7 }}>
+          Authentic Experiences &nbsp;•&nbsp; Budget Smart &nbsp;•&nbsp; Off-Beat Adventures
+        </p>
+        <Link href="/explore">
+          <button className="btn-gold" style={{ fontSize: '15px', padding: '14px 36px', borderRadius: '50px' }}>
+            🚀 Start Exploring
+          </button>
+        </Link>
       </section>
 
-      {/* Intro section */}
-      <section className="py-24 bg-slate-950">
-        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[1, 2, 3].map((item) => (
-            <div key={item} className="glass-effect p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300">
-              <div className="h-12 w-12 bg-primary-500/20 rounded-xl mb-6 flex items-center justify-center text-primary-500">
-                ★
-              </div>
-              <h3 className="text-xl font-bold mb-4">Discover</h3>
-              <p className="text-slate-400">Explore untouched regions of India that remain hidden from typical tourist maps.</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </main>
+      {/* Intro Cards */}
+      <div className="intro-cards-grid">
+        {introCards.map((card, i) => (
+          <div key={i} className="intro-card">
+            <div className="intro-card-icon">{card.icon}</div>
+            <div className="intro-card-title">{card.title}</div>
+            <p className="intro-card-desc">{card.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom CTA */}
+      <div style={{ textAlign: 'center', marginTop: '60px', padding: '48px 24px', background: 'rgba(250,196,150,0.04)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
+        <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '24px', color: 'var(--text-primary)', marginBottom: '12px' }}>
+          Know a Hidden Gem? 💎
+        </h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
+          Share your favorite offbeat destination with the VIHARA community.
+        </p>
+        <Link href="/submit">
+          <button className="btn-outline">✍️ Submit Your Hidden Gem</button>
+        </Link>
+      </div>
+    </div>
   );
 }

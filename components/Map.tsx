@@ -1,10 +1,9 @@
 'use client';
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Rectangle, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix for default marker icons in Leaflet with Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -12,35 +11,65 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-interface MapProps {
-  destinations: any[];
+function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
+  return null;
 }
 
-export default function Map({ destinations }: MapProps) {
+function UserLocationController() {
+  const map = useMap();
+  const markerRef = useRef<L.Marker | null>(null);
+
+  useEffect(() => {
+    (window as any).__viharaSetLocation = (coords: [number, number] | null) => {
+      if (coords) {
+        if (markerRef.current) map.removeLayer(markerRef.current);
+        markerRef.current = L.marker(coords).addTo(map).bindPopup('📍 Your Location').openPopup();
+        map.setView(coords, 10);
+      } else {
+        map.setView([20.5937, 78.9629], 5);
+      }
+    };
+    (window as any).__viharaClearLocation = () => {
+      if (markerRef.current) { map.removeLayer(markerRef.current); markerRef.current = null; }
+    };
+    return () => {
+      delete (window as any).__viharaSetLocation;
+      delete (window as any).__viharaClearLocation;
+    };
+  }, [map]);
+
+  return null;
+}
+
+interface MapProps {
+  destinations: any[];
+  center: [number, number];
+  zoom: number;
+  statesData: Record<string, { coords: [[number,number],[number,number]]; color: string; subZones: string[] }>;
+}
+
+export default function Map({ destinations, center, zoom, statesData }: MapProps) {
   return (
-    <div className="h-[400px] w-full rounded-2xl overflow-hidden border border-white/10 relative z-10">
-      <MapContainer 
-        center={[20.5937, 78.9629]} 
-        zoom={5} 
-        style={{ height: '100%', width: '100%' }}
-        className="z-0"
-      >
+    <div style={{ height: 420, width: '100%' }}>
+      <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: '100%', width: '100%', borderRadius: '10px' }}>
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {destinations.map((dest) => (
-          <Marker key={dest.id} position={[dest.latitude, dest.longitude]}>
-            <Popup>
-              <div className="font-sans">
-                <h3 className="font-bold text-lg mb-1">{dest.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{dest.location}</p>
-                <span className="inline-block px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs">
-                  {dest.category}
-                </span>
-              </div>
-            </Popup>
-          </Marker>
+        <MapController center={center} zoom={zoom} />
+        <UserLocationController />
+        {Object.entries(statesData).map(([state, data]) => (
+          <Rectangle
+            key={state}
+            bounds={data.coords}
+            pathOptions={{ color: data.color, weight: 2, opacity: 0.7, fillOpacity: 0.08 }}
+          >
+            <Popup>{state}</Popup>
+          </Rectangle>
         ))}
       </MapContainer>
     </div>
