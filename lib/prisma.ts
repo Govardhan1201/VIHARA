@@ -5,6 +5,17 @@ declare global {
   var prisma: PrismaClient | undefined
 }
 
-export const prisma = globalThis.prisma ?? new PrismaClient()
+// Only initialize if DATABASE_URL is available (skip during static build analysis)
+const createPrismaClient = () => {
+  if (!process.env.DATABASE_URL) {
+    // Return a mock-like placeholder during build when no DB URL is available
+    return null as unknown as PrismaClient
+  }
+  return new PrismaClient({
+    datasourceUrl: process.env.DATABASE_URL,
+  })
+}
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma
+export const prisma = globalThis.prisma ?? createPrismaClient()
+
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma ?? undefined
