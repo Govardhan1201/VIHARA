@@ -1,0 +1,15 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "explore": "Explore",
+    "submit": "Submit Destination",
+    "converters": "Converters",
+    "tips": "Tips & Tricks",
+    "admin": "Admin"
+  },
+  "Home": {
+    "heroTitle": "Discover India's Hidden Gems",
+    "heroSubtitle": "Journey to places unknown. Find the untamed, the untouched, and the unbelievably beautiful.",
+    "exploreBtn": "Start Exploring"
+  }
+}
