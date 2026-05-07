@@ -13,57 +13,64 @@ const navItems = [
 ];
 
 export default function AppHeader() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const rawPath = usePathname();
-  // strip locale prefix
+  const rawPath = usePathname() || '/';
   const pathname = rawPath.replace(/^\/(en|hi|te)/, '') || '/';
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
   }, []);
-
-  const close = () => setSidebarOpen(false);
 
   return (
     <>
-      <header className="app-header" style={{ boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.4)' : 'none' }}>
-        <a href="/" className="app-logo">
-          <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/41df026d-c095-4b1f-8b52-455c3571b0ef" alt="VIHARA Logo" />
+      <header className={`app-header ${scrolled ? 'scrolled' : ''}`}>
+        <a href="/en" className="app-logo">
+          <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/41df026d-c095-4b1f-8b52-455c3571b0ef" alt="VIHARA" />
           <span>VIHARA</span>
         </a>
-        <button className="hamburger-btn" onClick={() => setSidebarOpen(o => !o)} aria-label="Menu">
-          <span style={{ transform: sidebarOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
-          <span style={{ opacity: sidebarOpen ? 0 : 1 }} />
-          <span style={{ transform: sidebarOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
-        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            Discover India
+          </span>
+          <button className="hamburger-btn" onClick={() => setOpen(o => !o)} aria-label="Menu">
+            <span style={{ transform: open ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
+            <span style={{ opacity: open ? 0 : 1, transform: open ? 'scaleX(0)' : 'none' }} />
+            <span style={{ transform: open ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
+          </button>
+        </div>
       </header>
 
-      <div className={`sidebar-overlay ${sidebarOpen ? 'active' : ''}`} onClick={close} />
+      <div className={`sidebar-overlay ${open ? 'active' : ''}`} onClick={() => setOpen(false)} />
 
-      <aside className={`sidebar ${sidebarOpen ? 'active' : ''}`}>
+      <aside className={`sidebar ${open ? 'active' : ''}`}>
+        <div className="sidebar-brand">
+          <div style={{ fontFamily: 'var(--heading)', color: 'var(--gold)', fontWeight: 800, fontSize: '16px', letterSpacing: '2px' }}>VIHARA</div>
+          <p>Wander the Unseen · Discover Bharat</p>
+        </div>
+
         <nav className="sidebar-nav">
-          <div className="sidebar-section-label">Navigation</div>
+          <div className="sidebar-section-label">Main Navigation</div>
           {navItems.map(item => (
-            <Link
+            <a
               key={item.href}
-              href={item.href}
+              href={`/en${item.href === '/' ? '' : item.href}`}
               className={`sidebar-link ${pathname === item.href ? 'active' : ''}`}
-              onClick={close}
+              onClick={() => setOpen(false)}
             >
-              <span className="icon">{item.icon}</span>
-              <div>
-                <div className="label">{item.label}</div>
-                <div className="sub">{item.sub}</div>
+              <div className="icon">{item.icon}</div>
+              <div className="info">
+                <span className="label">{item.label}</span>
+                <span className="sub">{item.sub}</span>
               </div>
-            </Link>
+            </a>
           ))}
         </nav>
-        <div className="sidebar-footer">
-          VIHARA © 2025 · Wander the Unseen
-        </div>
+
+        <div className="sidebar-footer">VIHARA © 2025</div>
       </aside>
     </>
   );
