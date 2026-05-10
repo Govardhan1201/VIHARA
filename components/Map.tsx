@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Rectangle, useMap } from 'react-leaflet';
+import { useEffect, useRef, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Rectangle, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -50,27 +50,52 @@ interface MapProps {
   center: [number, number];
   zoom: number;
   statesData: Record<string, { coords: [[number,number],[number,number]]; color: string; subZones: string[] }>;
+  selectedState?: string | null;
 }
 
-export default function Map({ destinations, center, zoom, statesData }: MapProps) {
+export default function Map({ destinations, center, zoom, statesData, selectedState }: MapProps) {
+  const [geoData, setGeoData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('https://raw.githubusercontent.com/adarshbiradar/maps-of-india/master/states.geojson')
+      .then(r => r.json())
+      .then(d => setGeoData(d))
+      .catch(() => console.error('Could not load GeoJSON'));
+  }, []);
+
   return (
     <div style={{ height: 420, width: '100%' }}>
-      <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: '100%', width: '100%', borderRadius: '10px' }}>
+      <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: '100%', width: '100%', borderRadius: '10px', background: '#080C0C' }}>
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
         <MapController center={center} zoom={zoom} />
         <UserLocationController />
-        {Object.entries(statesData).map(([state, data]) => (
-          <Rectangle
-            key={state}
-            bounds={data.coords}
-            pathOptions={{ color: data.color, weight: 2, opacity: 0.7, fillOpacity: 0.08 }}
-          >
-            <Popup>{state}</Popup>
-          </Rectangle>
-        ))}
+        
+        {geoData && (
+          <GeoJSON
+            data={geoData}
+            style={(feature) => {
+              const stateName = feature?.properties?.st_nm;
+              const isDefined = statesData[stateName] ? true : false;
+              const isSelected = selectedState === stateName;
+              
+              if (isSelected) {
+                return { color: 'var(--gold)', weight: 3, opacity: 1, fillColor: 'var(--gold)', fillOpacity: 0.2 };
+              } else if (isDefined) {
+                return { color: 'var(--gold)', weight: 1, opacity: 0.5, fillColor: 'transparent', fillOpacity: 0 };
+              } else {
+                return { color: '#333', weight: 1, opacity: 0.3, fillColor: 'transparent', fillOpacity: 0 };
+              }
+            }}
+            onEachFeature={(feature, layer) => {
+              if (feature.properties && feature.properties.st_nm) {
+                layer.bindPopup(feature.properties.st_nm);
+              }
+            }}
+          />
+        )}
       </MapContainer>
     </div>
   );

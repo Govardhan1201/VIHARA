@@ -28,27 +28,8 @@ export default async function HomePage() {
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
         <div className="hero-overlay" />
-        <div className="hero-content">
-          <div className="hero-badge">
-            <span style={{ width:6, height:6, borderRadius:'50%', background:'var(--gold)', display:'inline-block', animation:'pulse 2s infinite' }} />
-            {t('badge')}
-          </div>
-          <h1 className="hero-title">{t('title')}</h1>
-          <p className="hero-tagline">{t('tagline')}</p>
-          <p className="hero-tagline" style={{ marginBottom:8 }}>{t('tagline2')}</p>
-          <p className="hero-sub">{t('sub')}</p>
-          <div className="hero-ctas">
-            <a href="./explore" className="btn btn-primary" style={{ fontSize:15, padding:'14px 32px' }}>
-              🚀 {t('cta_explore')}
-            </a>
-            <a href="./story" className="btn btn-secondary" style={{ fontSize:15, padding:'14px 32px' }}>
-              ✨ {t('cta_story')}
-            </a>
-          </div>
-        </div>
-        <div className="hero-scroll">
-          <span>{t('scroll')}</span>
-          <div className="hero-scroll-line" />
+        <div className="hero-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(60px, 15vw, 150px)', fontWeight: 900, letterSpacing: '0.1em', margin: 0, textTransform: 'uppercase', textShadow: '0 10px 30px rgba(0,0,0,0.8)', color: 'var(--gold)' }}>VIHARA</h1>
         </div>
         <style>{`
           @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}

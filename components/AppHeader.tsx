@@ -12,6 +12,7 @@ const NAV = [
   { path: '/converters', label: { en:'Convert', hi:'कनवर्टर', te:'కన్వర్టర్' } },
   { path: '/tips', label: { en:'Tips', hi:'टिप्स', te:'సూచనలు' } },
   { path: '/submit', label: { en:'Submit Gem', hi:'सुझाएं', te:'సమర్పించు' } },
+  { path: '/guide', label: { en:'How It Works', hi:'यह कैसे काम करता है', te:'ఇది ఎలా పనిచేస్తుంది' } },
   { path: '/about', label: { en:'About', hi:'बारे में', te:'గురించి' } },
 ];
 
@@ -39,42 +40,31 @@ export default function AppHeader() {
   return (
     <>
       <header style={{
-        position:'fixed', top:0, left:0, right:0, height:'var(--nav-h)', zIndex:900,
+        position:'fixed', top:0, left:0, right:0, zIndex:900,
         background: scrolled ? 'rgba(8,12,12,0.98)' : 'rgba(8,12,12,0.6)',
         backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
         borderBottom: `1px solid ${scrolled ? 'rgba(201,150,90,0.2)' : 'rgba(255,255,255,0.05)'}`,
-        transition:'all 300ms ease', display:'flex', alignItems:'center',
+        transition:'all 300ms ease', display:'flex', alignItems:'flex-start',
       }}>
-        <div className="container" style={{ display:'flex', alignItems:'center', gap:24, width:'100%' }}>
-          {/* Logo */}
-          <button onClick={() => navigate('')} style={{ background:'none', border:'none', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', gap:10 }}>
-            <span style={{ fontFamily:'Playfair Display,serif', fontSize:22, fontWeight:900, letterSpacing:3, color:'var(--gold)', textTransform:'uppercase' }}>VIHARA</span>
-          </button>
-
-          {/* Nav Links — desktop */}
-          <nav style={{ flex:1, display:'flex', gap:2, justifyContent:'center', flexWrap:'nowrap', overflow:'hidden' }} className="desktop-nav">
-            {NAV.filter(n => n.path !== '').slice(0, 7).map(item => {
-              const active = currentPath === item.path;
-              return (
-                <button key={item.path} onClick={() => navigate(item.path)} style={{
-                  padding:'7px 14px', background:'none', border:'none', cursor:'pointer',
-                  fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:600,
-                  color: active ? 'var(--gold)' : 'var(--text-muted)',
-                  borderRadius:'var(--r-sm)', transition:'all var(--dur)',
-                  whiteSpace:'nowrap',
-                }}
-                  onMouseEnter={e => { if(!active)(e.currentTarget as HTMLButtonElement).style.color='var(--text)'; }}
-                  onMouseLeave={e => { if(!active)(e.currentTarget as HTMLButtonElement).style.color='var(--text-muted)'; }}
-                >
-                  {navLabel(item)}
-                  {active && <span style={{ display:'block', height:2, background:'var(--gold)', borderRadius:2, marginTop:2 }} />}
-                </button>
-              );
-            })}
-          </nav>
+        <div className="container" style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', width:'100%', paddingTop: 10, paddingBottom: 10 }}>
+          {/* Left Stack: Logo + Menu */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <button onClick={() => navigate('')} style={{ background:'none', border:'none', cursor:'pointer', padding: 0 }}>
+              <span style={{ fontFamily:'Playfair Display,serif', fontSize:28, fontWeight:900, letterSpacing:4, color:'var(--gold)', textTransform:'uppercase' }}>VIHARA</span>
+            </button>
+            <button onClick={() => setMenuOpen(o => !o)} style={{
+              background: 'none', border: 'none', padding: 0,
+              display: 'flex', flexDirection: 'column', gap: 5, cursor: 'pointer',
+              width: 32
+            }}>
+              <span style={{ display: 'block', width: '100%', height: 2, background: 'var(--text)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
+              <span style={{ display: 'block', width: '70%', height: 2, background: 'var(--text)', transition: 'all 0.3s', opacity: menuOpen ? 0 : 1 }} />
+              <span style={{ display: 'block', width: '85%', height: 2, background: 'var(--text)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
+            </button>
+          </div>
 
           {/* Right controls */}
-          <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0, marginLeft:'auto' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             {/* Lang Switcher */}
             <div className="lang-switcher" style={{ display:'flex' }}>
               {(['en','hi','te'] as Locale[]).map(l => (
@@ -83,28 +73,6 @@ export default function AppHeader() {
                 </button>
               ))}
             </div>
-
-            {/* Submit CTA — desktop */}
-            <button onClick={() => navigate('/submit')} className="btn btn-primary btn-sm" style={{ display:'flex', borderRadius:50 }}>
-              + Submit
-            </button>
-
-            {/* Hamburger */}
-            <button onClick={() => setMenuOpen(o => !o)} style={{
-              width:40, height:40, background:'var(--card)', border:'1px solid var(--border)',
-              borderRadius:'var(--r-sm)', display:'flex', flexDirection:'column', alignItems:'center',
-              justifyContent:'center', gap:5, cursor:'pointer', transition:'all var(--dur)',
-            }}
-              onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.borderColor='var(--gold-border)'}
-              onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.borderColor='var(--border)'}
-            >
-              {[0,1,2].map(i => (
-                <span key={i} style={{ display:'block', width:18, height:2, background:'var(--text-muted)', borderRadius:2, transition:'all var(--dur)',
-                  transform: menuOpen ? (i===0?'rotate(45deg) translate(5px,5px)':i===1?'scaleX(0)':'rotate(-45deg) translate(5px,-5px)') : 'none',
-                  opacity: menuOpen && i===1 ? 0 : 1,
-                }} />
-              ))}
-            </button>
           </div>
         </div>
       </header>

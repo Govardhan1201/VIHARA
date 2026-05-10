@@ -130,7 +130,7 @@ export default function ExplorePage() {
       <div className="glass" style={{ padding: '24px 28px', marginBottom: 20, borderRadius: 'var(--r-lg)' }}>
         <div className="section-title">🗺️ Interactive Map</div>
         <div style={{ marginBottom: 16, borderRadius: 'var(--r-md)', overflow: 'hidden' }}>
-          <Map destinations={filtered} center={mapCenter} zoom={selectedState ? 7 : 5} statesData={statesData} />
+          <Map destinations={filtered} center={mapCenter} zoom={selectedState ? 7 : 5} statesData={statesData} selectedState={selectedState} />
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button className="btn btn-primary" style={{ fontSize: 12 }}
