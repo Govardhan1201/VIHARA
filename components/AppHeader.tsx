@@ -5,6 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 const navItems = [
   { path: '', icon: '🏠', label: 'Home', sub: 'Welcome to VIHARA' },
   { path: '/explore', icon: '🗺️', label: 'Explore', sub: 'Discover destinations' },
+  { path: '/story', icon: '✨', label: 'Travel Stories', sub: 'AI photo-to-story' },
+  { path: '/food', icon: '🍛', label: 'Local Food', sub: 'Taste every destination' },
   { path: '/submit', icon: '✍️', label: 'Submit Gem', sub: 'Share your hidden gem' },
   { path: '/converters', icon: '💱', label: 'Converters', sub: 'Unit & currency tools' },
   { path: '/tips', icon: '💡', label: 'Travel Tips', sub: 'Helpful advice' },
