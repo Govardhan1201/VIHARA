@@ -59,6 +59,7 @@ img,video{max-width:100%;}
 
 /* ── FEATURE GRID ── */
 .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
 .feat-card{padding:36px 32px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);transition:all var(--dur) var(--ease);position:relative;overflow:hidden;}
 .feat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-dim),transparent);opacity:0;transition:opacity var(--dur);}
 .feat-card:hover{border-color:var(--gold-border);transform:translateY(-6px);box-shadow:0 24px 64px rgba(0,0,0,0.6);}
@@ -189,6 +190,7 @@ img,video{max-width:100%;}
   .container{padding:0 18px;}
   .section{padding:52px 0;}
   .feat-grid{grid-template-columns:1fr;}
+  .ai-grid{grid-template-columns:1fr;gap:32px;}
   .conv-row{grid-template-columns:1fr;}
   .dest-grid{grid-template-columns:1fr;}
   .chatbot-panel{width:calc(100vw - 32px);right:16px;bottom:80px;}

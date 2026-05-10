@@ -69,7 +69,7 @@ export default async function HomePage() {
       {/* ── AI FEATURES STRIP ── */}
       <section className="section" style={{ background:'var(--surface)' }}>
         <div className="container">
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'center' }}>
+          <div className="ai-grid">
             <div>
               <div className="badge badge-teal" style={{ marginBottom:20 }}>✦ AI Powered</div>
               <h2 className="section-title">{t('ai_title')}</h2>

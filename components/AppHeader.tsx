@@ -49,15 +49,69 @@ export default function AppHeader() {
         <div className="container" style={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', paddingTop: 14, paddingBottom: 14 }}>
           {/* Left Stack: Menu + Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button onClick={() => setMenuOpen(o => !o)} style={{
-              background: 'none', border: 'none', padding: 0,
-              display: 'flex', flexDirection: 'column', gap: 5, cursor: 'pointer',
-              width: 28, height: 20, justifyContent: 'center'
-            }}>
-              <span style={{ display: 'block', width: '100%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
-              <span style={{ display: 'block', width: '75%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', opacity: menuOpen ? 0 : 1 }} />
-              <span style={{ display: 'block', width: '100%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
-            </button>
+            <div 
+              onMouseEnter={() => setMenuOpen(true)}
+              onMouseLeave={() => setMenuOpen(false)}
+              style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '44px' }}
+            >
+              <button style={{
+                background: 'none', border: 'none', padding: 0,
+                display: 'flex', flexDirection: 'column', gap: 5, cursor: 'pointer',
+                width: 28, height: 20, justifyContent: 'center'
+              }}>
+                <span style={{ display: 'block', width: '100%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
+                <span style={{ display: 'block', width: '75%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', opacity: menuOpen ? 0 : 1 }} />
+                <span style={{ display: 'block', width: '100%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
+              </button>
+
+              {menuOpen && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: '-12px', paddingTop: '12px',
+                  zIndex: 1000
+                }}>
+                  <div style={{
+                    background: 'rgba(17, 20, 18, 0.95)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+                    border: '1px solid var(--border)', borderRadius: 'var(--r-lg)',
+                    padding: '12px 0', minWidth: '240px', display: 'flex',
+                    flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+                    animation: 'slideUp 0.2s cubic-bezier(0.16,1,0.3,1)'
+                  }}>
+                    {NAV.map(item => {
+                      const active = currentPath === item.path;
+                      return (
+                        <button key={item.path} onClick={() => navigate(item.path)} style={{
+                          background:'none', border:'none', cursor:'pointer', fontFamily:'Inter,sans-serif', textAlign: 'left',
+                          fontSize:'14px', fontWeight:600, color: active ? 'var(--gold)' : 'var(--text-muted)',
+                          padding:'10px 24px', transition:'all 0.2s', width: '100%', display: 'flex', alignItems: 'center'
+                        }}
+                          onMouseEnter={e => {
+                            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)';
+                            (e.currentTarget as HTMLButtonElement).style.color = 'var(--text)';
+                          }}
+                          onMouseLeave={e => {
+                            (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                            (e.currentTarget as HTMLButtonElement).style.color = active ? 'var(--gold)' : 'var(--text-muted)';
+                          }}
+                        >
+                          {navLabel(item)}
+                        </button>
+                      );
+                    })}
+                    <div style={{ padding: '16px 24px 8px', borderTop: '1px solid var(--border)', marginTop: '8px' }}>
+                      <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-dim)', marginBottom: '12px', fontWeight: 700, letterSpacing: '1px' }}>Language</div>
+                      <div className="lang-switcher" style={{ display:'flex', background: 'rgba(0,0,0,0.2)' }}>
+                        {(['en','hi','te'] as Locale[]).map(l => (
+                          <button key={l} className={`lang-btn${locale===l?' active':''}`} onClick={() => { switchLocale(l); setMenuOpen(false); }}>
+                            {l==='en'?'English':l==='hi'?'हिंदी':'తెలుగు'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
             <button onClick={() => navigate('')} style={{ background:'none', border:'none', cursor:'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
               <span style={{ fontFamily:'Playfair Display,serif', fontSize:26, fontWeight:900, letterSpacing:4, color:'var(--text)', textTransform:'uppercase' }}>VIHARA</span>
             </button>
@@ -77,35 +131,7 @@ export default function AppHeader() {
         </div>
       </header>
 
-      {/* Full-screen menu overlay */}
-      {menuOpen && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(8,12,12,0.97)', backdropFilter:'blur(20px)', zIndex:890, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:8, animation:'fadeIn 0.2s ease' }}>
-          {NAV.map(item => {
-            const active = currentPath === item.path;
-            return (
-              <button key={item.path} onClick={() => navigate(item.path)} style={{
-                background:'none', border:'none', cursor:'pointer', fontFamily:'Playfair Display,serif',
-                fontSize:'clamp(22px,5vw,36px)', fontWeight:700, color: active ? 'var(--gold)' : 'var(--text-muted)',
-                padding:'10px 24px', transition:'all var(--dur)',
-              }}
-                onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color='var(--text)'}
-                onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color=active?'var(--gold)':'var(--text-muted)'}
-              >
-                {navLabel(item)}
-              </button>
-            );
-          })}
-          {/* Lang switcher in menu */}
-          <div className="lang-switcher" style={{ marginTop:24 }}>
-            {(['en','hi','te'] as Locale[]).map(l => (
-              <button key={l} className={`lang-btn${locale===l?' active':''}`} onClick={() => { switchLocale(l); setMenuOpen(false); }}>
-                {l==='en'?'English':l==='hi'?'हिंदी':'తెలుగు'}
-              </button>
-            ))}
-          </div>
-          <button onClick={() => setMenuOpen(false)} style={{ position:'absolute', top:24, right:24, background:'var(--card)', border:'1px solid var(--border)', borderRadius:'50%', width:44, height:44, fontSize:18, color:'var(--text-muted)', cursor:'pointer' }}>✕</button>
-        </div>
-      )}
+
 
       <style>{`
         @media(max-width:900px){ .desktop-nav { display:none !important; } }

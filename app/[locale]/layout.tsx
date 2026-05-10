@@ -6,7 +6,6 @@ import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import AppHeader from '@/components/AppHeader';
 import AIChatbot from '@/components/AIChatbot';
-import Cursor from '@/components/Cursor';
 
 export const metadata: Metadata = {
   title: "VIHARA | Discover India's Hidden Gems",
@@ -33,7 +32,6 @@ export default async function LocaleLayout({
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <Cursor />
           <AppHeader />
           <main className="main-content">
             {children}
