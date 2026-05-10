@@ -26,3 +26,10 @@ model Submission {
   status         String   @default("PENDING")
   createdAt      DateTime @default(now())
 }
+
+model StateRegion {
+  name     String   @id
+  coords   Json     // Storing [[lat, lng], [lat, lng]]
+  color    String
+  subZones String[]
+}

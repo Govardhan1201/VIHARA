@@ -34,6 +34,13 @@ export default function ExplorePage() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [shareMsg, setShareMsg] = useState('');
+  const [dynamicStates, setDynamicStates] = useState<Record<string, any>>(statesData);
+
+  useEffect(() => {
+    fetch('/api/admin/regions').then(r => r.json()).then(data => {
+      if (data.statesData) setDynamicStates(data.statesData);
+    }).catch(() => {});
+  }, []);
 
 
 
@@ -66,9 +73,9 @@ export default function ExplorePage() {
 
   useEffect(() => { applyFilters(); }, [applyFilters]);
 
-  const subZones = selectedState ? statesData[selectedState]?.subZones || [] : [];
-  const mapCenter: [number, number] = selectedState
-    ? [statesData[selectedState].coords[0][0], statesData[selectedState].coords[0][1]]
+  const subZones = selectedState ? dynamicStates[selectedState]?.subZones || [] : [];
+  const mapCenter: [number, number] = selectedState && dynamicStates[selectedState]
+    ? [dynamicStates[selectedState].coords[0][0], dynamicStates[selectedState].coords[0][1]]
     : [20.5937, 78.9629];
 
   const askAI = async () => {
@@ -139,7 +146,7 @@ export default function ExplorePage() {
       <div className="glass" style={{ padding: '24px 28px', marginBottom: 20 }}>
         <div className="form-section-label">📍 Step 1: {t('state')}</div>
         <div className="bubble-wrap">
-          {Object.keys(statesData).map(state => (
+          {Object.keys(dynamicStates).map(state => (
             <button key={state} className={`bubble ${selectedState === state ? 'active' : ''}`}
               onClick={() => { setSelectedState(s => s === state ? null : state); setSelectedSubZone(null); }}>
               {state}
@@ -150,7 +157,7 @@ export default function ExplorePage() {
           <>
             <div className="form-section-label" style={{ marginTop: 22 }}>📍 Step 2: {t('zone')}</div>
             <div className="bubble-wrap">
-              {subZones.map(zone => (
+              {subZones.map((zone: string) => (
                 <button key={zone} className={`bubble ${selectedSubZone === zone ? 'active' : ''}`}
                   onClick={() => setSelectedSubZone(z => z === zone ? null : zone)}>
                   {zone}
