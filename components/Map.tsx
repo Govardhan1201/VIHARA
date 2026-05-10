@@ -11,11 +11,15 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
+function MapController({ center, zoom, bounds }: { center: [number, number]; zoom: number; bounds: L.LatLngBounds | null }) {
   const map = useMap();
   useEffect(() => {
-    map.setView(center, zoom);
-  }, [center, zoom, map]);
+    if (bounds) {
+      map.fitBounds(bounds, { padding: [50, 50], animate: true });
+    } else {
+      map.setView(center, zoom, { animate: true });
+    }
+  }, [center, zoom, bounds, map]);
   return null;
 }
 
@@ -55,6 +59,7 @@ interface MapProps {
 
 export default function Map({ destinations, center, zoom, statesData, selectedState }: MapProps) {
   const [geoData, setGeoData] = useState<any>(null);
+  const [selectedBounds, setSelectedBounds] = useState<L.LatLngBounds | null>(null);
 
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/adarshbiradar/maps-of-india/master/states.geojson')
@@ -63,6 +68,20 @@ export default function Map({ destinations, center, zoom, statesData, selectedSt
       .catch(() => console.error('Could not load GeoJSON'));
   }, []);
 
+  useEffect(() => {
+    if (geoData && selectedState) {
+      const feature = geoData.features.find((f: any) => f.properties.st_nm === selectedState);
+      if (feature) {
+        const layer = L.geoJSON(feature);
+        setSelectedBounds(layer.getBounds());
+      } else {
+        setSelectedBounds(null);
+      }
+    } else {
+      setSelectedBounds(null);
+    }
+  }, [geoData, selectedState]);
+
   return (
     <div style={{ height: 420, width: '100%' }}>
       <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: '100%', width: '100%', borderRadius: '10px', background: '#080C0C' }}>
@@ -70,7 +89,7 @@ export default function Map({ destinations, center, zoom, statesData, selectedSt
           attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
-        <MapController center={center} zoom={zoom} />
+        <MapController center={center} zoom={zoom} bounds={selectedBounds} />
         <UserLocationController />
         
         {geoData && (
@@ -82,11 +101,11 @@ export default function Map({ destinations, center, zoom, statesData, selectedSt
               const isSelected = selectedState === stateName;
               
               if (isSelected) {
-                return { color: 'var(--gold)', weight: 3, opacity: 1, fillColor: 'var(--gold)', fillOpacity: 0.2 };
+                return { color: 'var(--gold)', weight: 3, opacity: 1, fillColor: 'var(--gold)', fillOpacity: 0.15, className: 'glowing-state' };
               } else if (isDefined) {
-                return { color: 'var(--gold)', weight: 1, opacity: 0.5, fillColor: 'transparent', fillOpacity: 0 };
+                return { color: 'var(--gold)', weight: 1, opacity: 0.3, fillColor: 'transparent', fillOpacity: 0 };
               } else {
-                return { color: '#333', weight: 1, opacity: 0.3, fillColor: 'transparent', fillOpacity: 0 };
+                return { color: '#333', weight: 1, opacity: 0.2, fillColor: 'transparent', fillOpacity: 0 };
               }
             }}
             onEachFeature={(feature, layer) => {

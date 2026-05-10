@@ -46,20 +46,20 @@ export default function AppHeader() {
         borderBottom: `1px solid ${scrolled ? 'rgba(201,150,90,0.2)' : 'rgba(255,255,255,0.05)'}`,
         transition:'all 300ms ease', display:'flex', alignItems:'flex-start',
       }}>
-        <div className="container" style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', width:'100%', paddingTop: 10, paddingBottom: 10 }}>
-          {/* Left Stack: Logo + Menu */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <button onClick={() => navigate('')} style={{ background:'none', border:'none', cursor:'pointer', padding: 0 }}>
-              <span style={{ fontFamily:'Playfair Display,serif', fontSize:28, fontWeight:900, letterSpacing:4, color:'var(--gold)', textTransform:'uppercase' }}>VIHARA</span>
-            </button>
+        <div className="container" style={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', paddingTop: 14, paddingBottom: 14 }}>
+          {/* Left Stack: Menu + Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <button onClick={() => setMenuOpen(o => !o)} style={{
               background: 'none', border: 'none', padding: 0,
               display: 'flex', flexDirection: 'column', gap: 5, cursor: 'pointer',
-              width: 32
+              width: 28, height: 20, justifyContent: 'center'
             }}>
-              <span style={{ display: 'block', width: '100%', height: 2, background: 'var(--text)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
-              <span style={{ display: 'block', width: '70%', height: 2, background: 'var(--text)', transition: 'all 0.3s', opacity: menuOpen ? 0 : 1 }} />
-              <span style={{ display: 'block', width: '85%', height: 2, background: 'var(--text)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
+              <span style={{ display: 'block', width: '100%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
+              <span style={{ display: 'block', width: '75%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', opacity: menuOpen ? 0 : 1 }} />
+              <span style={{ display: 'block', width: '100%', height: 2, background: 'var(--gold)', transition: 'all 0.3s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
+            </button>
+            <button onClick={() => navigate('')} style={{ background:'none', border:'none', cursor:'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+              <span style={{ fontFamily:'Playfair Display,serif', fontSize:26, fontWeight:900, letterSpacing:4, color:'var(--text)', textTransform:'uppercase' }}>VIHARA</span>
             </button>
           </div>
 

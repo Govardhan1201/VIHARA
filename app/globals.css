@@ -204,3 +204,13 @@ img,video{max-width:100%;}
 .gradient-text{background:linear-gradient(135deg,var(--text) 20%,var(--gold) 60%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .text-gold{color:var(--gold);}
 .text-teal{color:var(--teal);}
+
+/* ── MAP GLOW ── */
+.glowing-state {
+  filter: drop-shadow(0 0 10px rgba(201, 150, 90, 0.8));
+  animation: mapGlow 2s infinite alternate;
+}
+@keyframes mapGlow {
+  from { filter: drop-shadow(0 0 6px rgba(201, 150, 90, 0.4)); }
+  to { filter: drop-shadow(0 0 14px rgba(201, 150, 90, 0.9)); }
+}
