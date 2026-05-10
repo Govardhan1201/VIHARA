@@ -19,23 +19,33 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pw }),
       });
-      if (res.ok) { setAuth(true); fetchSubs(); }
-      else { setErr(true); setPw(''); }
+      if (res.ok) {
+        sessionStorage.setItem('vihara_admin_token', pw);
+        setAuth(true); fetchSubs();
+      } else { setErr(true); setPw(''); }
     } catch { setErr(true); }
     finally { setAuthLoading(false); }
   };
 
-  const logout = () => { setAuth(false); setPw(''); setSubs([]); };
+  const logout = () => { setAuth(false); setPw(''); setSubs([]); sessionStorage.removeItem('vihara_admin_token'); };
 
   const fetchSubs = async () => {
     setLoading(true);
-    try { const r = await fetch('/api/submissions'); const d = await r.json(); setSubs(d.submissions||[]); }
+    const token = sessionStorage.getItem('vihara_admin_token') || '';
+    try { const r = await fetch('/api/submissions', { headers: { 'x-admin-token': token } }); const d = await r.json(); setSubs(d.submissions||[]); }
     catch {} finally { setLoading(false); }
   };
 
   const updateStatus = async (id:string, status:string) => {
-    try { await fetch(`/api/submissions/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ status }) }); fetchSubs(); }
-    catch {}
+    const token = sessionStorage.getItem('vihara_admin_token') || '';
+    try {
+      await fetch(`/api/submissions/${id}`, {
+        method:'PATCH',
+        headers:{'Content-Type':'application/json', 'x-admin-token': token},
+        body:JSON.stringify({ status })
+      });
+      fetchSubs();
+    } catch {}
   };
 
   const pending = subs.filter(s=>s.status==='PENDING');

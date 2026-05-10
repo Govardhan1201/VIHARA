@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block admin panel from indexing
+Disallow: /en/admin
+Disallow: /hi/admin
+Disallow: /te/admin
+Disallow: /api/
+
+Sitemap: https://vihara.vercel.app/sitemap.xml
