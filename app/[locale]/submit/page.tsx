@@ -2,12 +2,19 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
+type OtpStep = 'idle' | 'sending' | 'sent' | 'verifying' | 'verified';
+
 export default function SubmitPage() {
   const t = useTranslations('submit');
   const [form, setForm] = useState({ placeName:'', state:'', subZone:'', description:'', activity:'', duration:'', budget:'', transport:'', accommodation:'budget', emoji:'🌟', mapLink:'', imageLink:'', videoLink:'', submitterName:'', submitterEmail:'' });
   const [status, setStatus] = useState('');
   const [pending, setPending] = useState<any[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
+  // OTP state
+  const [otpStep, setOtpStep] = useState<OtpStep>('idle');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpToken, setOtpToken] = useState('');
+  const [otpError, setOtpError] = useState('');
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
   useEffect(() => { fetchPending(); }, []);
@@ -36,15 +43,47 @@ export default function SubmitPage() {
     } catch {} finally { setAiLoading(false); }
   };
 
+  const sendOtp = async () => {
+    if (!form.submitterEmail || !form.submitterName) { setOtpError('Please fill your name and email first.'); return; }
+    setOtpError(''); setOtpStep('sending');
+    try {
+      const res = await fetch('/api/otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: form.submitterEmail, name: form.submitterName }) });
+      const data = await res.json();
+      if (!res.ok) { setOtpError(data.error || 'Failed to send OTP'); setOtpStep('idle'); return; }
+      setOtpStep('sent');
+    } catch { setOtpError('Failed to send OTP. Please try again.'); setOtpStep('idle'); }
+  };
+
+  const verifyOtp = async () => {
+    if (!otpCode || otpCode.length !== 6) { setOtpError('Enter the 6-digit code from your email.'); return; }
+    setOtpError(''); setOtpStep('verifying');
+    try {
+      const res = await fetch('/api/otp', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: form.submitterEmail, otp: otpCode }) });
+      const data = await res.json();
+      if (!res.ok) { setOtpError(data.error || 'Incorrect OTP'); setOtpStep('sent'); return; }
+      setOtpToken(data.token);
+      setOtpStep('verified');
+    } catch { setOtpError('Verification failed. Please try again.'); setOtpStep('sent'); }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (otpStep !== 'verified') { alert('Please verify your email first!'); return; }
     const required = ['placeName','state','subZone','description','activity','duration','budget','transport','submitterName','submitterEmail'];
     if (required.some(k => !(form as any)[k])) { alert('❌ Please fill all required fields!'); return; }
     setStatus('submitting');
     try {
-      const res = await fetch('/api/submissions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, budget: parseInt(form.budget) }) });
-      if (res.ok) { setStatus('success'); setForm({ placeName:'', state:'', subZone:'', description:'', activity:'', duration:'', budget:'', transport:'', accommodation:'budget', emoji:'🌟', mapLink:'', imageLink:'', videoLink:'', submitterName:'', submitterEmail:'' }); fetchPending(); }
-      else setStatus('error');
+      const res = await fetch('/api/submissions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, budget: parseInt(form.budget), otpToken }) });
+      if (res.ok) {
+        setStatus('success');
+        setForm({ placeName:'', state:'', subZone:'', description:'', activity:'', duration:'', budget:'', transport:'', accommodation:'budget', emoji:'🌟', mapLink:'', imageLink:'', videoLink:'', submitterName:'', submitterEmail:'' });
+        setOtpStep('idle'); setOtpToken(''); setOtpCode('');
+        fetchPending();
+      } else {
+        const d = await res.json();
+        setStatus('error');
+        alert(d.error || 'Submission failed.');
+      }
     } catch { setStatus('error'); }
   };
 
@@ -110,22 +149,66 @@ export default function SubmitPage() {
           </div>
         </div>
 
-        {/* Links & Contact */}
-        <div className="glass" style={{ padding:'28px', marginBottom:'28px' }}>
-          <div className="form-section-label">🔗 Links & Contact</div>
+        {/* Links */}
+        <div className="glass" style={{ padding:'28px', marginBottom:'20px' }}>
+          <div className="form-section-label">🔗 Links</div>
           <div className="form-grid">
             <InputField label="Google Maps Link" name="mapLink" type="url" placeholder="https://maps.app.goo.gl/..." />
             <InputField label="Photos Link" name="imageLink" type="url" placeholder="https://..." />
             <InputField label="Video Link" name="videoLink" type="url" placeholder="https://youtube.com/..." />
-            <InputField label="Your Name" name="submitterName" placeholder="Your full name" required />
-            <InputField label="Your Email" name="submitterEmail" type="email" placeholder="your@email.com" required />
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary" style={{ width:'100%', padding:'16px', fontSize:'15px', borderRadius:'var(--r-sm)', justifyContent:'center' }} disabled={status==='submitting'}>
-          {status==='submitting' ? '⏳ Submitting...' : '🚀 Submit Hidden Gem'}
+        {/* Contact & Email Verification */}
+        <div className="glass" style={{ padding:'28px', marginBottom:'28px' }}>
+          <div className="form-section-label">✉️ Contact & Email Verification</div>
+          <div className="form-grid" style={{ marginBottom: 20 }}>
+            <InputField label="Your Name" name="submitterName" placeholder="Your full name" required />
+            <InputField label="Your Email" name="submitterEmail" type="email" placeholder="your@email.com" required />
+          </div>
+
+          {/* OTP Verification Widget */}
+          {otpStep === 'verified' ? (
+            <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 18px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'var(--r-md)' }}>
+              <span style={{ fontSize:22 }}>✅</span>
+              <div>
+                <div style={{ fontWeight:700, color:'#10b981', fontSize:14 }}>Email Verified</div>
+                <div style={{ fontSize:12, color:'var(--text-muted)' }}>{form.submitterEmail} has been verified successfully.</div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ padding:'18px', background:'rgba(201,150,90,0.06)', border:'1px solid rgba(201,150,90,0.2)', borderRadius:'var(--r-md)' }}>
+              <div style={{ fontWeight:700, color:'var(--gold)', fontSize:13, marginBottom:10 }}>🔐 Verify Your Email</div>
+              {otpStep === 'idle' && (
+                <>
+                  <p style={{ fontSize:12, color:'var(--text-muted)', marginBottom:12 }}>We'll send a 6-digit code to your email to verify your identity before submitting.</p>
+                  <button type="button" onClick={sendOtp} className="btn btn-primary btn-sm">📧 Send Verification Code</button>
+                </>
+              )}
+              {otpStep === 'sending' && <p style={{ fontSize:13, color:'var(--text-muted)' }}>⏳ Sending verification code to {form.submitterEmail}…</p>}
+              {(otpStep === 'sent' || otpStep === 'verifying') && (
+                <div style={{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap' }}>
+                  <div style={{ flex:1, minWidth:180 }}>
+                    <p style={{ fontSize:12, color:'var(--text-muted)', marginBottom:8 }}>Code sent to <strong style={{color:'var(--gold)'}}>{form.submitterEmail}</strong>. Check your inbox.</p>
+                    <input className="field-input" placeholder="Enter 6-digit code" value={otpCode} onChange={e => setOtpCode(e.target.value.replace(/\D/g,'').slice(0,6))} maxLength={6} style={{ letterSpacing:6, fontSize:20, fontWeight:700, textAlign:'center', width:'100%' }} />
+                  </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    <button type="button" onClick={verifyOtp} disabled={otpStep==='verifying'} className="btn btn-primary btn-sm">
+                      {otpStep === 'verifying' ? '⏳ Verifying…' : '✓ Verify Code'}
+                    </button>
+                    <button type="button" onClick={() => { setOtpStep('idle'); setOtpCode(''); setOtpError(''); }} style={{ background:'none', border:'none', fontSize:11, color:'var(--text-muted)', cursor:'pointer' }}>Resend code</button>
+                  </div>
+                </div>
+              )}
+              {otpError && <p style={{ color:'#ef4444', fontSize:12, marginTop:8 }}>❌ {otpError}</p>}
+            </div>
+          )}
+        </div>
+
+        <button type="submit" className="btn btn-primary" style={{ width:'100%', padding:'16px', fontSize:'15px', borderRadius:'var(--r-sm)', justifyContent:'center', opacity: otpStep !== 'verified' ? 0.6 : 1 }} disabled={status==='submitting' || otpStep !== 'verified'}>
+          {status==='submitting' ? '⏳ Submitting...' : otpStep !== 'verified' ? '🔒 Verify Email to Submit' : '🚀 Submit Hidden Gem'}
         </button>
-        {status==='success' && <p style={{ color:'#10b981', textAlign:'center', marginTop:'14px', fontWeight:600, fontSize:'14px' }}>✅ Gem submitted! Waiting for admin approval.</p>}
+        {status==='success' && <p style={{ color:'#10b981', textAlign:'center', marginTop:'14px', fontWeight:600, fontSize:'14px' }}>✅ Gem submitted! Check your email for confirmation. Waiting for admin approval.</p>}
         {status==='error' && <p style={{ color:'#ef4444', textAlign:'center', marginTop:'14px', fontSize:'13px' }}>Something went wrong. Please try again.</p>}
       </form>
 
@@ -146,9 +229,7 @@ export default function SubmitPage() {
                   <div className="badge badge-pending" style={{ marginBottom:'8px' }}>⏳ Pending Approval</div>
                   <div className="dest-card-name">{s.placeName}</div>
                   <div className="dest-card-desc">{s.description}</div>
-                  <div style={{ fontSize:'11px', color:'var(--text-muted)', marginBottom:'10px' }}>
-                    By: {s.submitterName} · {new Date(s.createdAt).toLocaleDateString()}
-                  </div>
+                  <div style={{ fontSize:'11px', color:'var(--text-muted)', marginBottom:'10px' }}>By: {s.submitterName} · {new Date(s.createdAt).toLocaleDateString()}</div>
                   <div className="dest-tags">
                     <span className="dest-tag">📍 {s.state}</span>
                     <span className="dest-tag">⏱ {s.duration}</span>

@@ -8,6 +8,45 @@ interface StoryOutput {
   caption: string;
 }
 
+function ReelCaptionGenerator({ destination, storyTitle }: { destination: string; storyTitle: string }) {
+  const [caption, setCaption] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const generate = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `Create a punchy Instagram Reels / YouTube Shorts caption for a travel video about "${destination || storyTitle}". Requirements: max 15 words, evocative and emotional, end with 5 relevant trending hashtags like #HiddenIndia #TravelIndia etc. Format: [caption text] [hashtags]. Output ONLY the caption, nothing else.`
+        }),
+      });
+      const data = await res.json();
+      setCaption(data.reply || '');
+    } catch { setCaption('Could not generate caption. Please try again.'); }
+    finally { setLoading(false); }
+  };
+
+  const copy = () => { navigator.clipboard.writeText(caption); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+
+  return (
+    <div style={{ background: 'rgba(255,100,150,0.05)', border: '1px solid rgba(255,100,150,0.2)', borderRadius: 'var(--r-lg)', padding: '16px 20px', marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: caption ? 12 : 0 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#f472b6', letterSpacing: '0.8px', textTransform: 'uppercase' }}>🎬 Reel Caption AI</span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {caption && <button onClick={copy} style={{ fontSize: 11, padding: '4px 12px', borderRadius: 50, border: '1px solid rgba(244,114,182,0.3)', color: '#f472b6', background: 'none', cursor: 'pointer' }}>{copied ? '✅ Copied!' : '📋 Copy'}</button>}
+          <button onClick={generate} disabled={loading} style={{ fontSize: 11, padding: '4px 14px', borderRadius: 50, border: '1px solid rgba(244,114,182,0.4)', background: 'rgba(244,114,182,0.1)', color: '#f472b6', cursor: 'pointer', fontWeight: 700 }}>
+            {loading ? '⏳ Generating…' : caption ? '🔄 Regenerate' : '✨ Generate Reel Caption'}
+          </button>
+        </div>
+      </div>
+      {caption && <p style={{ color: 'var(--text)', fontSize: 13, lineHeight: 1.7, margin: 0 }}>{caption}</p>}
+    </div>
+  );
+}
+
 export default function StoryGenerator({ compact = false }: { compact?: boolean }) {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -201,7 +240,7 @@ export default function StoryGenerator({ compact = false }: { compact?: boolean 
           </div>
 
           {/* Social Caption */}
-          <div style={{ background: 'rgba(50,184,198,0.06)', border: '1px solid rgba(50,184,198,0.2)', borderRadius: 'var(--r-lg)', padding: '20px 24px' }}>
+          <div style={{ background: 'rgba(50,184,198,0.06)', border: '1px solid rgba(50,184,198,0.2)', borderRadius: 'var(--r-lg)', padding: '20px 24px', marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Social Caption</span>
               <button onClick={copyCaption} className="btn btn-secondary" style={{ fontSize: 11, padding: '4px 12px', borderRadius: 50, borderColor: 'rgba(50,184,198,0.3)', color: 'var(--teal)' }}>
@@ -210,6 +249,9 @@ export default function StoryGenerator({ compact = false }: { compact?: boolean 
             </div>
             <p style={{ color: 'var(--text)', fontSize: 13, lineHeight: 1.7 }}>{story.caption}</p>
           </div>
+
+          {/* AI Reel Caption Generator */}
+          <ReelCaptionGenerator destination={destination} storyTitle={story.title} />
 
           {/* Preview thumbnails */}
           {previews.length > 0 && (

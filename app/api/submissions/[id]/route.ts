@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendSubmissionResult } from '@/lib/email';
 export const dynamic = 'force-dynamic';
 
 function isAdmin(request: Request): boolean {
@@ -18,6 +19,10 @@ export async function PATCH(
     if (!['APPROVED','REJECTED','PENDING'].includes(status))
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     const updated = await prisma.submission.update({ where: { id }, data: { status } });
+    // Send result email (non-blocking)
+    if (status === 'APPROVED' || status === 'REJECTED') {
+      sendSubmissionResult(updated.submitterEmail, updated.submitterName, updated.placeName, status === 'APPROVED').catch(console.error);
+    }
     return NextResponse.json({ submission: updated });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update submission' }, { status: 500 });

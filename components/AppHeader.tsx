@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl';
 const NAV = [
   { path: '', label: { en:'Home', hi:'होम', te:'హోమ్' } },
   { path: '/explore', label: { en:'Explore', hi:'अन्वेषण', te:'అన్వేషించు' } },
+  { path: '/itinerary', label: { en:'AI Itinerary', hi:'यात्रा योजना', te:'AI ప్రయాణం' } },
   { path: '/story', label: { en:'Stories', hi:'कहानियाँ', te:'కథలు' } },
   { path: '/food', label: { en:'Local Food', hi:'व्यंजन', te:'ఆహారం' } },
   { path: '/crowd', label: { en:'Crowd AI', hi:'भीड़ AI', te:'జన AI' } },

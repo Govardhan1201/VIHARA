@@ -14,6 +14,8 @@ const Map = dynamic(() => import('@/components/Map'), { ssr: false, loading: () 
 
 type PopupTab = 'info' | 'food' | 'crowd';
 
+interface WeatherData { temp: number; condition: string; icon: string; city: string; humidity: number; }
+
 export default function ExplorePage() {
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedSubZone, setSelectedSubZone] = useState<string | null>(null);
@@ -29,6 +31,12 @@ export default function ExplorePage() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiResult, setAiResult] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [shareMsg, setShareMsg] = useState('');
+
+
+
 
   useEffect(() => {
     fetch('/api/submissions?status=APPROVED').then(r => r.json()).then(data => {
@@ -74,7 +82,34 @@ export default function ExplorePage() {
     finally { setAiLoading(false); }
   };
 
-  const openPopup = (dest: Destination) => { setPopup(dest); setPopupTab('info'); };
+  const openPopup = (dest: Destination) => {
+    setPopup(dest); setPopupTab('info'); setWeather(null);
+    // Track analytics
+    fetch('/api/analytics', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ destination: dest.name }) }).catch(() => {});
+    // Fetch weather
+    const city = dest.subZone || dest.state;
+    setWeatherLoading(true);
+    fetch(`/api/weather?city=${encodeURIComponent(city)}`)
+      .then(r => r.json()).then(d => { if (!d.error) setWeather(d); })
+      .catch(() => {})
+      .finally(() => setWeatherLoading(false));
+  };
+
+  const shareDestination = (dest: Destination) => {
+    const url = `${window.location.origin}${window.location.pathname}?dest=${encodeURIComponent(dest.name)}`;
+    navigator.clipboard.writeText(url).then(() => { setShareMsg('Link copied!'); setTimeout(() => setShareMsg(''), 2000); });
+  };
+
+  // Auto-open destination from URL param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const destName = params.get('dest');
+    if (destName) {
+      const found = allDests.find(d => d.name.toLowerCase() === destName.toLowerCase());
+      if (found) openPopup(found);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allDests]);
 
   return (
     <div className="container" style={{ paddingBottom: 80 }}>
@@ -227,6 +262,23 @@ export default function ExplorePage() {
             {/* Tab: Info */}
             {popupTab === 'info' && (
               <>
+                {/* Weather Widget */}
+                {(weather || weatherLoading) && (
+                  <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'rgba(50,184,198,0.06)', border:'1px solid rgba(50,184,198,0.15)', borderRadius:'var(--r-md)', marginBottom:16 }}>
+                    {weatherLoading ? (
+                      <span style={{ fontSize:12, color:'var(--text-muted)' }}>🌤 Loading weather…</span>
+                    ) : weather ? (
+                      <>
+                        <img src={`https://openweathermap.org/img/wn/${weather.icon}.png`} alt={weather.condition} style={{ width:32, height:32 }} />
+                        <div>
+                          <div style={{ fontSize:16, fontWeight:800, color:'var(--teal)' }}>{weather.temp}°C</div>
+                          <div style={{ fontSize:11, color:'var(--text-muted)', textTransform:'capitalize' }}>{weather.condition} · 💧 {weather.humidity}% humidity</div>
+                        </div>
+                        <span style={{ fontSize:10, color:'var(--text-dim)', marginLeft:'auto' }}>Live weather</span>
+                      </>
+                    ) : null}
+                  </div>
+                )}
                 {[['📍 State', popup.state], ['🏘️ Zone', popup.subZone], ['📝 About', popup.desc], ['🏃 Activity', popup.activity], ['⏱ Duration', popup.duration], ['🚌 Transport', popup.transport], ['🏨 Stay', popup.accommodation], ['💰 Budget', `₹${popup.budget}`]].map(([k, v]) => (
                   <div key={k} className="popup-detail-row"><span className="popup-detail-label">{k}</span><span className="popup-detail-value">{v}</span></div>
                 ))}
@@ -234,6 +286,7 @@ export default function ExplorePage() {
                   <a href={popup.mapLink} target="_blank" rel="noreferrer" className="popup-link">📍 Map</a>
                   <a href={popup.imageLink} target="_blank" rel="noreferrer" className="popup-link">📷 Photos</a>
                   <a href={popup.videoLink} target="_blank" rel="noreferrer" className="popup-link">🎥 Video</a>
+                  <button onClick={() => shareDestination(popup)} className="popup-link" style={{ border:'none', cursor:'pointer', background:'none' }}>📎 {shareMsg || 'Share'}</button>
                 </div>
               </>
             )}

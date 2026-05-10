@@ -1,18 +1,7 @@
 import { NextResponse } from 'next/server';
+import { crowdRatelimit } from '@/lib/redis';
 export const dynamic = 'force-dynamic';
 
-// ── In-memory rate limiter ──────────────────────────────────────────────────
-const WINDOW_MS = 60 * 1000;
-const MAX_REQUESTS = 10;
-const ipMap = new Map<string, { count: number; resetAt: number }>();
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipMap.get(ip);
-  if (!entry || now > entry.resetAt) { ipMap.set(ip, { count: 1, resetAt: now + WINDOW_MS }); return false; }
-  if (entry.count >= MAX_REQUESTS) return true;
-  entry.count++;
-  return false;
-}
 
 export interface CrowdAIResponse {
   level: 'Low' | 'Moderate' | 'High';
@@ -28,7 +17,8 @@ export interface CrowdAIResponse {
 export async function POST(request: Request) {
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    if (isRateLimited(ip)) {
+    const { success } = await crowdRatelimit.limit(ip);
+    if (!success) {
       return NextResponse.json({ error: 'Rate limit exceeded. Please wait a moment.' }, { status: 429 });
     }
 

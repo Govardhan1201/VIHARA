@@ -1,5 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getLocale } from 'next-intl/server';
+import TrendingSection from '@/components/TrendingSection';
+
 
 const FEATURES = [
   { icon:'🗺️', key:'0' }, { icon:'✨', key:'1' }, { icon:'🍛', key:'2' },
@@ -108,7 +110,45 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── TRENDING TODAY ── */}
+      <section className="section">
+        <div className="container">
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:32, flexWrap:'wrap' }}>
+            <div style={{ width:8, height:8, borderRadius:'50%', background:'#10b981', boxShadow:'0 0 8px #10b981', animation:'pulse 2s infinite' }} />
+            <h2 className="section-title" style={{ margin:0 }}>🔥 Trending Today</h2>
+            <span style={{ fontSize:12, color:'var(--text-muted)', fontStyle:'italic' }}>Updated live · Based on explorer activity</span>
+          </div>
+          <TrendingSection />
+        </div>
+      </section>
+
+      {/* ── AI ITINERARY CTA ── */}
+      <section className="section" style={{ background:'var(--surface)' }}>
+        <div className="container">
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'center' }}>
+            <div>
+              <div className="badge badge-teal" style={{ marginBottom:16 }}>✨ New Feature</div>
+              <h2 className="section-title">Plan Your Perfect Trip with AI</h2>
+              <hr className="section-divider" />
+              <p style={{ color:'var(--text-muted)', fontSize:15, lineHeight:1.8, marginBottom:28 }}>
+                Tell Gemini AI where you want to go and for how long. Get a complete day-by-day itinerary with hidden gems, local food spots, accommodation, and insider tips — all personalized for you.
+              </p>
+              <a href="./itinerary" className="btn btn-primary" style={{ padding:'13px 28px', fontSize:14 }}>🗺️ Generate My Itinerary</a>
+            </div>
+            <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-xl)', padding:'28px 24px' }}>
+              {['📍 Choose your state & duration', '🎭 Pick your travel style', '🤖 Gemini crafts the perfect plan', '💡 Get local food, stay & tips'].map((step, i) => (
+                <div key={i} style={{ display:'flex', alignItems:'center', gap:14, padding:'12px 0', borderBottom: i < 3 ? '1px solid var(--border)' : 'none' }}>
+                  <div style={{ width:28, height:28, borderRadius:'50%', background:'var(--gold-dim)', border:'1px solid var(--gold-border)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, color:'var(--gold)', fontWeight:800, flexShrink:0 }}>{i+1}</div>
+                  <span style={{ fontSize:14, color:'var(--text-muted)' }}>{step}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA BANNER ── */}
+
       <section className="section">
         <div className="container">
           <div style={{ textAlign:'center', padding:'72px 32px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-xl)', position:'relative', overflow:'hidden' }}>

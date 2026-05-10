@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendSubmissionReceived } from '@/lib/email';
+import { redis } from '@/lib/redis';
 export const dynamic = 'force-dynamic';
 
 const strip = (s: unknown, max = 300) =>
@@ -20,6 +22,20 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
+
+    // Verify OTP token
+    const otpToken = data.otpToken;
+    const emailKey = data.submitterEmail?.toLowerCase();
+    if (otpToken && emailKey) {
+      const storedToken = await redis.get<string>(`verified:${emailKey}`);
+      if (!storedToken || storedToken !== otpToken) {
+        return NextResponse.json({ error: 'Email not verified. Please verify your email with OTP first.' }, { status: 403 });
+      }
+      // Consume the token
+      await redis.del(`verified:${emailKey}`);
+    } else {
+      return NextResponse.json({ error: 'Email verification required.' }, { status: 403 });
+    }
 
     // Validate required fields
     const placeName = strip(data.placeName, 100);
@@ -56,9 +72,10 @@ export async function POST(request: Request) {
         status: 'PENDING',
       }
     });
+    // Send confirmation email (non-blocking)
+    sendSubmissionReceived(submitterEmail, submitterName, placeName).catch(console.error);
     return NextResponse.json({ submission }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create submission' }, { status: 500 });
   }
 }
-

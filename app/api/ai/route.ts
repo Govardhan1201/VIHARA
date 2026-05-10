@@ -1,24 +1,8 @@
 import { NextResponse } from 'next/server';
+import { aiRatelimit } from '@/lib/redis';
+import { destinations } from '@/lib/destinations';
 export const dynamic = 'force-dynamic';
 
-// ── In-memory rate limiter (resets on server restart) ──────────────────────
-const WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 15;     // per IP per minute
-const ipMap = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    ipMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-  if (entry.count >= MAX_REQUESTS) return true;
-  entry.count++;
-  return false;
-}
-
-import { destinations } from '@/lib/destinations';
 
 export async function POST(request: Request) {
   try {
@@ -26,7 +10,8 @@ export async function POST(request: Request) {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
               || request.headers.get('x-real-ip')
               || 'unknown';
-    if (isRateLimited(ip)) {
+    const { success } = await aiRatelimit.limit(ip);
+    if (!success) {
       return NextResponse.json(
         { reply: "You're sending too many requests. Please wait a moment before trying again." },
         { status: 429 }
