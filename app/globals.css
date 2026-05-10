@@ -190,6 +190,9 @@ img,video{max-width:100%;}
 .lang-btn:hover:not(.active){color:var(--text);}
 
 /* ── RESPONSIVE ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
 @media(max-width:768px){
   .container{padding:0 18px;}
   .section{padding:52px 0;}
@@ -199,6 +202,7 @@ img,video{max-width:100%;}
   .dest-grid{grid-template-columns:1fr;}
   .chatbot-panel{width:calc(100vw - 32px);right:16px;bottom:80px;}
   .hero-title{font-size:clamp(56px,16vw,100px);}
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
 }
 
 /* ── ANIMATIONS ── */

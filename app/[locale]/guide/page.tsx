@@ -9,6 +9,13 @@ export default function GuidePage() {
 
   const features = [
     {
+      id: 'itinerary',
+      icon: '🗺️',
+      title: t('f_itinerary_title'),
+      description: t('f_itinerary_desc'),
+      steps: [t('f_itinerary_s1'), t('f_itinerary_s2'), t('f_itinerary_s3'), t('f_itinerary_s4')]
+    },
+    {
       id: 'explore',
       icon: '🌍',
       title: t('f_explore_title'),

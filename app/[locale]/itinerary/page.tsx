@@ -58,7 +58,7 @@ export default function ItineraryPage() {
 
       {/* Planner Form */}
       <div className="glass" style={{ padding:'32px', marginBottom:32, borderRadius:'var(--r-xl)' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:24 }}>
+        <div className="form-grid" style={{ marginBottom:24 }}>
           <div>
             <label className="field-label">Select State *</label>
             <select className="field-select" value={state} onChange={e => setState(e.target.value)}>
@@ -85,7 +85,7 @@ export default function ItineraryPage() {
 
         <div style={{ marginBottom:28 }}>
           <label className="field-label">Travel Style</label>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <div className="grid-2" style={{ gap:10 }}>
             {STYLE_OPTIONS.map(o => (
               <button key={o.value} type="button" onClick={() => setStyle(o.value)} style={{ padding:'14px 16px', borderRadius:'var(--r-md)', border:`1px solid ${style===o.value?'var(--gold)':'var(--border)'}`, background: style===o.value?'var(--gold-dim)':'var(--surface)', textAlign:'left', cursor:'pointer', transition:'all 0.2s' }}>
                 <div style={{ fontWeight:700, fontSize:14, color: style===o.value?'var(--gold)':'var(--text)', marginBottom:4 }}>{o.label}</div>
@@ -142,7 +142,7 @@ export default function ItineraryPage() {
                 <h3 style={{ fontFamily:'Playfair Display, serif', fontSize:24, color:'var(--text)', margin:0 }}>{day.title}</h3>
               </div>
 
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:20 }}>
+              <div className="grid-2" style={{ gap:16, marginBottom:20 }}>
                 <div style={{ padding:'16px', background:'rgba(50,184,198,0.06)', border:'1px solid rgba(50,184,198,0.15)', borderRadius:'var(--r-md)' }}>
                   <div style={{ fontSize:11, fontWeight:700, color:'var(--teal)', marginBottom:8, textTransform:'uppercase' }}>📍 Places to Visit</div>
                   {day.destinations.map((d,i) => <div key={i} style={{ fontSize:13, color:'var(--text)', marginBottom:4 }}>• {d}</div>)}
@@ -153,7 +153,7 @@ export default function ItineraryPage() {
                 </div>
               </div>
 
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
+              <div className="grid-3" style={{ gap:12 }}>
                 {[{ icon:'🍛', label:'Local Food', val: day.food }, { icon:'🏨', label:'Stay', val: day.stay }, { icon:'💰', label:'Day Budget', val: day.budget }].map(item => (
                   <div key={item.label} style={{ padding:'14px', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--r-md)' }}>
                     <div style={{ fontSize:18, marginBottom:6 }}>{item.icon}</div>

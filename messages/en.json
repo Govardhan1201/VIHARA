@@ -170,6 +170,12 @@
     "f_submit_s1": "Fill in the destination details.",
     "f_submit_s2": "Use the \"Auto-Fill with AI\" button.",
     "f_submit_s3": "Add links to maps and photos.",
-    "f_submit_s4": "Submit for admin review!"
+    "f_submit_s4": "Submit for admin review!",
+    "f_itinerary_title": "AI Trip Planner",
+    "f_itinerary_desc": "Let Gemini AI generate a personalized day-by-day travel itinerary.",
+    "f_itinerary_s1": "Select your destination state and budget.",
+    "f_itinerary_s2": "Choose the duration and your preferred travel style.",
+    "f_itinerary_s3": "Click \"Generate\" to see a complete trip plan.",
+    "f_itinerary_s4": "Explore daily schedules with local food and stay recommendations."
   }
 }

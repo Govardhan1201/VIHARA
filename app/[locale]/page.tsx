@@ -71,7 +71,7 @@ export default async function HomePage() {
       {/* ── AI FEATURES STRIP ── */}
       <section className="section" style={{ background:'var(--surface)' }}>
         <div className="container">
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'48px 64px' }}>
+            <div className="grid-2" style={{ gap:'48px 64px' }}>
               {/* Left Column Header Block */}
               <div>
                 <div className="badge badge-teal" style={{ marginBottom:20 }}>✦ AI Powered</div>
@@ -125,7 +125,7 @@ export default async function HomePage() {
       {/* ── AI ITINERARY CTA ── */}
       <section className="section" style={{ background:'var(--surface)' }}>
         <div className="container">
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'center' }}>
+          <div className="grid-2" style={{ gap:48, alignItems:'center' }}>
             <div>
               <div className="badge badge-teal" style={{ marginBottom:16 }}>✨ New Feature</div>
               <h2 className="section-title">Plan Your Perfect Trip with AI</h2>
