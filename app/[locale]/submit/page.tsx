@@ -4,6 +4,21 @@ import { useTranslations } from 'next-intl';
 
 type OtpStep = 'idle' | 'sending' | 'sent' | 'verifying' | 'verified';
 
+const InputField = ({ label, name, value, onChange, type='text', placeholder='', required=false, options=null as null|string[], textarea=false }: any) => (
+  <div className="form-group">
+    <label className="field-label">{label}{required && <span style={{color:'var(--gold)'}}>*</span>}</label>
+    {textarea ? (
+      <textarea className="field-input" placeholder={placeholder} value={value || ''} onChange={e => onChange(name, e.target.value)} required={required} />
+    ) : options ? (
+      <select className="field-select" value={value || ''} onChange={e => onChange(name, e.target.value)} required={required}>
+        {options.map((o:string) => <option key={o} value={o===options[0]?'':o}>{o}</option>)}
+      </select>
+    ) : (
+      <input type={type} className="field-input" placeholder={placeholder} value={value || ''} onChange={e => onChange(name, e.target.value)} required={required} />
+    )}
+  </div>
+);
+
 export default function SubmitPage() {
   const t = useTranslations('submit');
   const [form, setForm] = useState({ placeName:'', state:'', subZone:'', description:'', activity:'', duration:'', budget:'', transport:'', accommodation:'budget', emoji:'🌟', mapLink:'', imageLink:'', videoLink:'', submitterName:'', submitterEmail:'' });
@@ -87,20 +102,6 @@ export default function SubmitPage() {
     } catch { setStatus('error'); }
   };
 
-  const InputField = ({ label, name, type='text', placeholder='', required=false, options=null as null|string[], textarea=false }: any) => (
-    <div className="form-group">
-      <label className="field-label">{label}{required && <span style={{color:'var(--gold)'}}>*</span>}</label>
-      {textarea ? (
-        <textarea className="field-input" placeholder={placeholder} value={(form as any)[name]} onChange={e => set(name, e.target.value)} required={required} />
-      ) : options ? (
-        <select className="field-select" value={(form as any)[name]} onChange={e => set(name, e.target.value)} required={required}>
-          {options.map((o:string) => <option key={o} value={o===options[0]?'':o}>{o}</option>)}
-        </select>
-      ) : (
-        <input type={type} className="field-input" placeholder={placeholder} value={(form as any)[name]} onChange={e => set(name, e.target.value)} required={required} />
-      )}
-    </div>
-  );
 
   return (
     <div className="container" style={{ maxWidth: 860, paddingBottom: 80 }}>
@@ -126,10 +127,10 @@ export default function SubmitPage() {
         <div className="glass" style={{ padding:'28px', marginBottom:'20px' }}>
           <div className="form-section-label">📍 Location Details</div>
           <div className="form-grid">
-            <InputField label="Place Name" name="placeName" placeholder="e.g. Anamudi Peak" required />
-            <InputField label="State" name="state" options={['Select State','Andhra Pradesh','Telangana','Rajasthan','Goa','Other']} required />
-            <InputField label="Sub-Zone / City" name="subZone" placeholder="e.g. Vizag" required />
-            <InputField label="Emoji / Icon" name="emoji" placeholder="e.g. 🏔️" />
+            <InputField label="Place Name" name="placeName" value={form.placeName} onChange={set} placeholder="e.g. Anamudi Peak" required />
+            <InputField label="State" name="state" value={form.state} onChange={set} options={['Select State','Andhra Pradesh','Telangana','Rajasthan','Goa','Other']} required />
+            <InputField label="Sub-Zone / City" name="subZone" value={form.subZone} onChange={set} placeholder="e.g. Vizag" required />
+            <InputField label="Emoji / Icon" name="emoji" value={form.emoji} onChange={set} placeholder="e.g. 🏔️" />
           </div>
         </div>
 
@@ -141,11 +142,11 @@ export default function SubmitPage() {
             <textarea className="field-input" placeholder="Describe this hidden gem..." value={form.description} onChange={e => set('description', e.target.value)} required />
           </div>
           <div className="form-grid">
-            <InputField label="Activity Type" name="activity" options={['Select Activity','adventure','cultural','nature','photography']} required />
-            <InputField label="Duration" name="duration" options={['Select Duration','short','medium']} required />
-            <InputField label="Budget (₹)" name="budget" type="number" placeholder="e.g. 1500" required />
-            <InputField label="Transport Options" name="transport" placeholder="e.g. Bus/Train/Flight" required />
-            <InputField label="Accommodation" name="accommodation" options={['budget','midrange','luxury']} />
+            <InputField label="Activity Type" name="activity" value={form.activity} onChange={set} options={['Select Activity','adventure','cultural','nature','photography']} required />
+            <InputField label="Duration" name="duration" value={form.duration} onChange={set} options={['Select Duration','short','medium']} required />
+            <InputField label="Budget (₹)" name="budget" value={form.budget} onChange={set} type="number" placeholder="e.g. 1500" required />
+            <InputField label="Transport Options" name="transport" value={form.transport} onChange={set} placeholder="e.g. Bus/Train/Flight" required />
+            <InputField label="Accommodation" name="accommodation" value={form.accommodation} onChange={set} options={['budget','midrange','luxury']} />
           </div>
         </div>
 
@@ -153,9 +154,9 @@ export default function SubmitPage() {
         <div className="glass" style={{ padding:'28px', marginBottom:'20px' }}>
           <div className="form-section-label">🔗 Links</div>
           <div className="form-grid">
-            <InputField label="Google Maps Link" name="mapLink" type="url" placeholder="https://maps.app.goo.gl/..." />
-            <InputField label="Photos Link" name="imageLink" type="url" placeholder="https://..." />
-            <InputField label="Video Link" name="videoLink" type="url" placeholder="https://youtube.com/..." />
+            <InputField label="Google Maps Link" name="mapLink" value={form.mapLink} onChange={set} type="url" placeholder="https://maps.app.goo.gl/..." />
+            <InputField label="Photos Link" name="imageLink" value={form.imageLink} onChange={set} type="url" placeholder="https://..." />
+            <InputField label="Video Link" name="videoLink" value={form.videoLink} onChange={set} type="url" placeholder="https://youtube.com/..." />
           </div>
         </div>
 
@@ -163,8 +164,8 @@ export default function SubmitPage() {
         <div className="glass" style={{ padding:'28px', marginBottom:'28px' }}>
           <div className="form-section-label">✉️ Contact & Email Verification</div>
           <div className="form-grid" style={{ marginBottom: 20 }}>
-            <InputField label="Your Name" name="submitterName" placeholder="Your full name" required />
-            <InputField label="Your Email" name="submitterEmail" type="email" placeholder="your@email.com" required />
+            <InputField label="Your Name" name="submitterName" value={form.submitterName} onChange={set} placeholder="Your full name" required />
+            <InputField label="Your Email" name="submitterEmail" value={form.submitterEmail} onChange={set} type="email" placeholder="your@email.com" required />
           </div>
 
           {/* OTP Verification Widget */}

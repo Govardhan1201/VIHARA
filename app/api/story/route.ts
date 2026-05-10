@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { aiRatelimit } from '@/lib/redis';
+
 export const dynamic = 'force-dynamic';
 
 // ── MOCK STORY TEMPLATES (used when no AI key is available) ──────────────────
@@ -45,6 +47,18 @@ We kept going. And the coast gave us everything.`,
 
 export async function POST(request: Request) {
   try {
+    // ── RATE LIMITING ─────────────────────────────────────────────────────────
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    if (aiRatelimit) {
+      const { success, limit, remaining, reset } = await aiRatelimit.limit(`story_${ip}`);
+      if (!success) {
+        return NextResponse.json({ error: `Rate limit exceeded. Please wait ${Math.ceil((reset - Date.now()) / 1000)} seconds.` }, {
+          status: 429,
+          headers: { 'X-RateLimit-Limit': limit.toString(), 'X-RateLimit-Remaining': remaining.toString(), 'X-RateLimit-Reset': reset.toString() },
+        });
+      }
+    }
+
     const formData = await request.formData();
     const images = formData.getAll('images') as File[];
     const destination = formData.get('destination') as string || 'Unknown Place';
