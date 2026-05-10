@@ -59,18 +59,26 @@ interface MapProps {
 
 export default function Map({ destinations, center, zoom, statesData, selectedState }: MapProps) {
   const [geoData, setGeoData] = useState<any>(null);
+  const [districtData, setDistrictData] = useState<any>(null);
   const [selectedBounds, setSelectedBounds] = useState<L.LatLngBounds | null>(null);
 
   useEffect(() => {
-    fetch('https://raw.githubusercontent.com/adarshbiradar/maps-of-india/master/states.geojson')
+    // Fetch state boundaries
+    fetch('https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson')
       .then(r => r.json())
       .then(d => setGeoData(d))
-      .catch(() => console.error('Could not load GeoJSON'));
+      .catch(() => console.error('Could not load State GeoJSON'));
+      
+    // Pre-fetch district boundaries for deep-dive
+    fetch('https://raw.githubusercontent.com/geohacker/india/master/district/india_district.geojson')
+      .then(r => r.json())
+      .then(d => setDistrictData(d))
+      .catch(() => console.error('Could not load District GeoJSON'));
   }, []);
 
   useEffect(() => {
     if (geoData && selectedState) {
-      const feature = geoData.features.find((f: any) => f.properties.st_nm === selectedState);
+      const feature = geoData.features.find((f: any) => f.properties.NAME_1 === selectedState);
       if (feature) {
         const layer = L.geoJSON(feature);
         setSelectedBounds(layer.getBounds());
@@ -92,25 +100,43 @@ export default function Map({ destinations, center, zoom, statesData, selectedSt
         <MapController center={center} zoom={zoom} bounds={selectedBounds} />
         <UserLocationController />
         
-        {geoData && (
+        {geoData && !selectedState && (
           <GeoJSON
             data={geoData}
             style={(feature) => {
-              const stateName = feature?.properties?.st_nm;
+              const stateName = feature?.properties?.NAME_1;
               const isDefined = statesData[stateName] ? true : false;
-              const isSelected = selectedState === stateName;
               
-              if (isSelected) {
-                return { color: 'var(--gold)', weight: 3, opacity: 1, fillColor: 'var(--gold)', fillOpacity: 0.15, className: 'glowing-state' };
-              } else if (isDefined) {
+              if (isDefined) {
                 return { color: 'var(--gold)', weight: 1, opacity: 0.3, fillColor: 'transparent', fillOpacity: 0 };
               } else {
                 return { color: '#333', weight: 1, opacity: 0.2, fillColor: 'transparent', fillOpacity: 0 };
               }
             }}
             onEachFeature={(feature, layer) => {
-              if (feature.properties && feature.properties.st_nm) {
-                layer.bindPopup(feature.properties.st_nm);
+              if (feature.properties && feature.properties.NAME_1) {
+                layer.bindPopup(feature.properties.NAME_1);
+              }
+            }}
+          />
+        )}
+
+        {selectedState && geoData && (
+          <GeoJSON
+            key={`state-${selectedState}`}
+            data={geoData.features.find((f: any) => f.properties.NAME_1 === selectedState)}
+            style={() => ({ color: 'var(--gold)', weight: 3, opacity: 1, fillColor: 'var(--gold)', fillOpacity: 0.15, className: 'glowing-state' })}
+          />
+        )}
+
+        {selectedState && districtData && (
+          <GeoJSON
+            key={`districts-${selectedState}`}
+            data={{ ...districtData, features: districtData.features.filter((f: any) => f.properties.NAME_1 === selectedState) }}
+            style={() => ({ color: 'var(--teal)', weight: 1, opacity: 0.6, fillColor: 'transparent', fillOpacity: 0, dashArray: '4' })}
+            onEachFeature={(feature, layer) => {
+              if (feature.properties && feature.properties.NAME_2) {
+                layer.bindTooltip(feature.properties.NAME_2, { permanent: false, direction: 'center', className: 'district-tooltip' });
               }
             }}
           />

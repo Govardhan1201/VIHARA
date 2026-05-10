@@ -1,86 +1,84 @@
+'use client';
+import { useTranslations } from 'next-intl';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+
 export default function GuidePage() {
+  const t = useTranslations('guide');
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const features = [
     {
       id: 'explore',
       icon: '🌍',
-      title: 'Explore India',
-      description: 'Discover hidden gems across India using our interactive map.',
-      steps: [
-        'Select a State from the bubbles at the top.',
-        'Select a Sub-Zone or City to narrow down your search.',
-        'Use the filters (Activity, Duration, Budget, Transport) to find the perfect spot.',
-        'Click on a destination card to view photos, videos, and detailed information.'
-      ]
+      title: t('f_explore_title'),
+      description: t('f_explore_desc'),
+      steps: [t('f_explore_s1'), t('f_explore_s2'), t('f_explore_s3'), t('f_explore_s4')]
     },
     {
       id: 'story',
       icon: '✨',
-      title: 'AI Travel Stories',
-      description: 'Turn your travel photos into a cinematic journal using Gemini AI.',
-      steps: [
-        'Upload your travel photos (drag & drop or click).',
-        'Add optional context like where you were and how you felt.',
-        'Click "Generate Story" and let our AI craft a personalized narrative.',
-        'Copy the story to share with friends or post on social media.'
-      ]
+      title: t('f_story_title'),
+      description: t('f_story_desc'),
+      steps: [t('f_story_s1'), t('f_story_s2'), t('f_story_s3'), t('f_story_s4')]
     },
     {
       id: 'food',
       icon: '🍛',
-      title: 'Local Food Explorer',
-      description: 'Find authentic, hyper-local dishes around your destination.',
-      steps: [
-        'Enter a destination name (e.g., "Araku Valley").',
-        'Our AI will find the most authentic local and tribal dishes in that area.',
-        'Read descriptions of what makes the food special and where to find it.'
-      ]
+      title: t('f_food_title'),
+      description: t('f_food_desc'),
+      steps: [t('f_food_s1'), t('f_food_s2'), t('f_food_s3')]
     },
     {
       id: 'crowd',
       icon: '🧭',
-      title: 'Crowd Predictor',
-      description: 'Plan your visit to avoid the rush using AI-driven crowd predictions.',
-      steps: [
-        'Search for a popular destination or hidden gem.',
-        'The AI analyzes seasonal trends, local holidays, and current events.',
-        'View the crowd score and the best times to visit for peace and quiet.'
-      ]
+      title: t('f_crowd_title'),
+      description: t('f_crowd_desc'),
+      steps: [t('f_crowd_s1'), t('f_crowd_s2'), t('f_crowd_s3')]
     },
     {
       id: 'converters',
       icon: '💱',
-      title: 'Universal Converters',
-      description: 'Handy tools for international and local travelers.',
-      steps: [
-        'Switch between tabs: Currency, Distance, Weight, Temp, Speed, Time.',
-        'Type a value into the top field to instantly see conversions.',
-        'Use the live time zone viewer to keep track of home and local time.'
-      ]
+      title: t('f_converters_title'),
+      description: t('f_converters_desc'),
+      steps: [t('f_converters_s1'), t('f_converters_s2'), t('f_converters_s3')]
     },
     {
       id: 'submit',
       icon: '✍️',
-      title: 'Submit a Gem',
-      description: 'Help the community by sharing your own offbeat discoveries.',
-      steps: [
-        'Fill in the destination details (Name, State, Description).',
-        'Use the "Auto-Fill with AI" button if you need help generating descriptions.',
-        'Add links to maps and photos.',
-        'Submit for admin review to get it featured on the map!'
-      ]
+      title: t('f_submit_title'),
+      description: t('f_submit_desc'),
+      steps: [t('f_submit_s1'), t('f_submit_s2'), t('f_submit_s3'), t('f_submit_s4')]
     }
   ];
 
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const cards = containerRef.current.querySelectorAll('.guide-card');
+    
+    gsap.fromTo(cards, 
+      { y: 50, opacity: 0 }, 
+      { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.8, 
+        stagger: 0.15, 
+        ease: 'power3.out',
+        delay: 0.1
+      }
+    );
+  }, []);
+
   return (
-    <div className="container" style={{ maxWidth: 860, paddingBottom: 80 }}>
+    <div className="container" style={{ maxWidth: 860, paddingBottom: 80 }} ref={containerRef}>
       <div className="page-hero">
-        <h1 style={{ fontFamily: 'Playfair Display, serif' }}>📖 How It Works</h1>
-        <p className="sub">Your complete guide to using the features of VIHARA</p>
+        <h1 style={{ fontFamily: 'Playfair Display, serif' }}>📖 {t('title')}</h1>
+        <p className="sub">{t('sub')}</p>
       </div>
 
       <div style={{ display: 'grid', gap: 32 }}>
-        {features.map(f => (
-          <div key={f.id} className="glass" style={{ padding: '32px', borderRadius: 'var(--r-lg)' }}>
+        {features.map((f, index) => (
+          <div key={f.id} className="glass guide-card" style={{ padding: '32px', borderRadius: 'var(--r-lg)', opacity: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
               <div style={{ width: 48, height: 48, background: 'var(--gold-dim)', border: '1px solid var(--gold-border)', borderRadius: 'var(--r-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
                 {f.icon}
@@ -92,7 +90,7 @@ export default function GuidePage() {
             </div>
 
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '24px' }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: 'var(--text)' }}>Step-by-Step Guide</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: 'var(--text)' }}>{t('step_by_step')}</h3>
               <div style={{ display: 'grid', gap: 12 }}>
                 {f.steps.map((step, i) => (
                   <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
@@ -106,7 +104,7 @@ export default function GuidePage() {
             </div>
             
             <div style={{ marginTop: 24 }}>
-               <a href={`./${f.id}`} className="btn btn-primary btn-sm" style={{ padding: '8px 24px' }}>Try {f.title} →</a>
+               <a href={`./${f.id}`} className="btn btn-primary btn-sm" style={{ padding: '8px 24px' }}>{t('try_btn')} {f.title} →</a>
             </div>
           </div>
         ))}
