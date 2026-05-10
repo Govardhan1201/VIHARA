@@ -64,13 +64,13 @@ export default function Map({ destinations, center, zoom, statesData, selectedSt
 
   useEffect(() => {
     // Fetch state boundaries
-    fetch('https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson')
+    fetch('/india_states_updated.geojson')
       .then(r => r.json())
       .then(d => setGeoData(d))
       .catch(() => console.error('Could not load State GeoJSON'));
       
     // Pre-fetch district boundaries for deep-dive
-    fetch('https://raw.githubusercontent.com/geohacker/india/master/district/india_district.geojson')
+    fetch('/india_districts_updated.geojson')
       .then(r => r.json())
       .then(d => setDistrictData(d))
       .catch(() => console.error('Could not load District GeoJSON'));
