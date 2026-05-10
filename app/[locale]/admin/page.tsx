@@ -1,19 +1,28 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-const ADMIN_PASSWORD = 'vihara123';
-
 export default function AdminPage() {
   const [auth, setAuth] = useState(false);
   const [pw, setPw] = useState('');
   const [err, setErr] = useState(false);
   const [subs, setSubs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
   const [tab, setTab] = useState<'pending'|'approved'|'rejected'>('pending');
 
-  const login = () => {
-    if (pw === ADMIN_PASSWORD) { setAuth(true); setErr(false); fetchSubs(); }
-    else { setErr(true); setPw(''); }
+  const login = async () => {
+    if (!pw.trim()) return;
+    setAuthLoading(true); setErr(false);
+    try {
+      const res = await fetch('/api/admin-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+      if (res.ok) { setAuth(true); fetchSubs(); }
+      else { setErr(true); setPw(''); }
+    } catch { setErr(true); }
+    finally { setAuthLoading(false); }
   };
 
   const logout = () => { setAuth(false); setPw(''); setSubs([]); };
@@ -62,8 +71,8 @@ export default function AdminPage() {
                 style={{ textAlign:'center', fontSize:'18px', letterSpacing:'4px' }} />
             </div>
             {err && <p style={{ color:'#ef4444', fontSize:'12px', marginBottom:'14px' }}>❌ Incorrect password. Please try again.</p>}
-            <button onClick={login} className="btn btn-primary" style={{ width:'100%', padding:'14px', fontSize:'14px', justifyContent:'center', borderRadius:'var(--r-sm)' }}>
-              🔓 Login to Dashboard
+            <button onClick={login} disabled={authLoading} className="btn btn-primary" style={{ width:'100%', padding:'14px', fontSize:'14px', justifyContent:'center', borderRadius:'var(--r-sm)', opacity: authLoading ? 0.7 : 1 }}>
+              {authLoading ? '⏳ Verifying…' : '🔓 Login to Dashboard'}
             </button>
           </div>
         </div>

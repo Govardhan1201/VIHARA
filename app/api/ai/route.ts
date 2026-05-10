@@ -1,11 +1,43 @@
 import { NextResponse } from 'next/server';
-import { destinations } from '@/lib/destinations';
 export const dynamic = 'force-dynamic';
+
+// ── In-memory rate limiter (resets on server restart) ──────────────────────
+const WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 15;     // per IP per minute
+const ipMap = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = ipMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    ipMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    return false;
+  }
+  if (entry.count >= MAX_REQUESTS) return true;
+  entry.count++;
+  return false;
+}
+
+import { destinations } from '@/lib/destinations';
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+              || request.headers.get('x-real-ip')
+              || 'unknown';
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { reply: "You're sending too many requests. Please wait a moment before trying again." },
+        { status: 429 }
+      );
+    }
+
     const { prompt } = await request.json();
     if (!prompt) return NextResponse.json({ error: 'No prompt provided' }, { status: 400 });
+
+    // Sanitize prompt — limit length to prevent abuse
+    const sanitized = String(prompt).slice(0, 500);
 
     const destSummary = destinations.map(d =>
       `${d.name} (${d.state}, ${d.subZone}) - ${d.activity}, ${d.duration} trip, Budget: ₹${d.budget}, Transport: ${d.transport}. ${d.desc}`
@@ -21,13 +53,13 @@ Guidelines:
 - Recommend specific destinations from the database when relevant
 - Include budget estimates, transport options, and best seasons when possible
 - Be enthusiastic about off-beat travel and hidden gems
-- Use simple, friendly language with occasional emojis`;
+- Use simple, friendly language with occasional emojis
+- NEVER discuss anything unrelated to India travel`;
 
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      // Fallback: smart keyword matching without API
-      const lower = prompt.toLowerCase();
+      const lower = sanitized.toLowerCase();
       const matched = destinations.filter(d =>
         lower.includes(d.state.toLowerCase()) ||
         lower.includes(d.activity.toLowerCase()) ||
@@ -49,9 +81,13 @@ Guidelines:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [
-            { role: 'user', parts: [{ text: systemPrompt + '\n\nUser question: ' + prompt }] }
+            { role: 'user', parts: [{ text: systemPrompt + '\n\nUser question: ' + sanitized }] }
           ],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 512 }
+          generationConfig: { temperature: 0.7, maxOutputTokens: 512 },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          ]
         })
       }
     );
