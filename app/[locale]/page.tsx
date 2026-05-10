@@ -53,6 +53,7 @@ export default async function HomePage() {
         <style>{`
           @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
           @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+          .ai-link:hover { border-color: var(--teal-border) !important; transform: translateX(4px) !important; }
         `}</style>
       </section>
 
@@ -94,10 +95,7 @@ export default async function HomePage() {
               <p style={{ color:'var(--text-muted)', fontSize:15, lineHeight:1.8, marginBottom:32 }}>{t('ai_sub')}</p>
               <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
                 {[['✨','AI Travel Story Generator','./story'],['🧭','Crowd Prediction AI','./crowd'],['🍛','Local Food Explorer','./food']].map(([icon,label,href]) => (
-                  <a key={href} href={href} style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 18px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', textDecoration:'none', transition:'all var(--dur)' }}
-                    onMouseEnter={(e:any) => { e.currentTarget.style.borderColor='var(--teal-border)'; e.currentTarget.style.transform='translateX(4px)'; }}
-                    onMouseLeave={(e:any) => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.transform='none'; }}
-                  >
+                  <a key={href} href={href} className="ai-link" style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 18px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', textDecoration:'none', transition:'all var(--dur)' }}>
                     <span style={{ fontSize:22 }}>{icon}</span>
                     <span style={{ fontFamily:'DM Sans,sans-serif', fontWeight:600, color:'var(--text)', fontSize:14 }}>{label}</span>
                     <span style={{ marginLeft:'auto', color:'var(--teal)', fontSize:14 }}>→</span>
