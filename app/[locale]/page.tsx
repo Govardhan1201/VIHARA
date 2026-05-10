@@ -85,13 +85,17 @@ export default async function HomePage() {
                 ))}
               </div>
             </div>
-            <div style={{ display:'grid', gap:16 }}>
+            <div style={{ position:'relative', display:'grid', gap:16 }}>
               {[{icon:'📷',t:'Upload travel photos',d:'Share your journey images with VIHARA AI'},
                 {icon:'🤖',t:'AI crafts your story',d:'Gemini writes a cinematic, soulful travel journal'},
-                {icon:'📋',t:'Share & remember',d:'Copy your story or social caption instantly'}].map(s => (
-                <div key={s.t} style={{ padding:'22px 24px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-lg)', display:'flex', gap:16, alignItems:'flex-start' }}>
-                  <div style={{ width:44, height:44, background:'var(--teal-dim)', border:'1px solid var(--teal-border)', borderRadius:'var(--r-sm)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>{s.icon}</div>
-                  <div><div style={{ fontWeight:700, color:'var(--text)', marginBottom:4, fontSize:14 }}>{s.t}</div><div style={{ fontSize:13, color:'var(--text-muted)' }}>{s.d}</div></div>
+                {icon:'📋',t:'Share & remember',d:'Copy your story or social caption instantly'}].map((s, idx) => (
+                <div key={s.t} className="step-card">
+                  <div className="step-line" />
+                  <div style={{ width:44, height:44, background:'var(--teal-dim)', border:'1px solid var(--teal-border)', borderRadius:'var(--r-sm)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, zIndex:1 }}>{s.icon}</div>
+                  <div style={{ zIndex:1 }}>
+                    <div style={{ fontWeight:700, color:'var(--text)', marginBottom:4, fontSize:14 }}>{s.t}</div>
+                    <div style={{ fontSize:13, color:'var(--text-muted)', lineHeight:1.5 }}>{s.d}</div>
+                  </div>
                 </div>
               ))}
             </div>
