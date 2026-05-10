@@ -1,9 +1,23 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 
 const TABS = ['currency','distance','weight','temperature','speed','time'] as const;
 type Tab = typeof TABS[number];
 const TAB_LABELS: Record<Tab,string> = { currency:'💱 Currency', distance:'📏 Distance', weight:'⚖️ Weight', temperature:'🌡️ Temp', speed:'🚗 Speed', time:'⏰ Time Zone' };
+
+const CURRENCIES = [
+  { code:'USD', label:'🇺🇸 USD ($)',   decimals:2 },
+  { code:'EUR', label:'🇪🇺 EUR (€)',   decimals:2 },
+  { code:'GBP', label:'🇬🇧 GBP (£)',   decimals:2 },
+  { code:'JPY', label:'🇯🇵 JPY (¥)',   decimals:0 },
+  { code:'AED', label:'🇦🇪 AED (د.إ)', decimals:2 },
+  { code:'SGD', label:'🇸🇬 SGD (S$)', decimals:2 },
+  { code:'AUD', label:'🇦🇺 AUD (A$)', decimals:2 },
+  { code:'CAD', label:'🇨🇦 CAD (C$)', decimals:2 },
+];
+
+interface RateData { rates: Record<string,number>; source: 'live'|'cache'|'fallback'; updatedAt?: string; note?: string; }
 
 function Field({ label, value, readOnly, onChange }: { label:string; value:string|number; readOnly?:boolean; onChange?:(v:string)=>void }) {
   return (
@@ -14,7 +28,6 @@ function Field({ label, value, readOnly, onChange }: { label:string; value:strin
     </div>
   );
 }
-import { useTranslations } from 'next-intl';
 
 export default function ConvertersPage() {
   const t = useTranslations('converters');
@@ -25,7 +38,19 @@ export default function ConvertersPage() {
   const [celsius, setCelsius] = useState('20');
   const [kmh, setKmh] = useState('100');
   const [times, setTimes] = useState({ ist:'',utc:'',est:'',pst:'',dubai:'',singapore:'' });
+  const [rateData, setRateData] = useState<RateData | null>(null);
+  const [ratesLoading, setRatesLoading] = useState(false);
   const timer = useRef<any>(null);
+
+  // Fetch live exchange rates once on mount
+  useEffect(() => {
+    setRatesLoading(true);
+    fetch('/api/exchange-rates')
+      .then(r => r.json())
+      .then((d: RateData) => setRateData(d))
+      .catch(() => setRateData(null))
+      .finally(() => setRatesLoading(false));
+  }, []);
 
   useEffect(() => {
     if (tab==='time') {
@@ -69,21 +94,47 @@ export default function ConvertersPage() {
       <div className="conv-body">
         {tab==='currency' && (
           <>
-            <h3 style={{color:'var(--gold)',fontFamily:'var(--heading)',fontSize:'18px',marginBottom:'24px'}}>💱 Global Currency Exchange</h3>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'24px', flexWrap:'wrap', gap:12 }}>
+              <h3 style={{color:'var(--gold)',fontFamily:'var(--heading)',fontSize:'18px',margin:0}}>💱 Live Currency Exchange</h3>
+              <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:12 }}>
+                {ratesLoading ? (
+                  <span style={{ color:'var(--text-muted)' }}>⏳ Fetching live rates…</span>
+                ) : rateData ? (
+                  <>
+                    <span style={{ width:7, height:7, borderRadius:'50%', background: rateData.source==='live'||rateData.source==='cache' ? '#10b981' : '#f59e0b', display:'inline-block' }} />
+                    <span style={{ color: rateData.source==='live'||rateData.source==='cache' ? 'var(--teal)' : '#f59e0b', fontWeight:600 }}>
+                      {rateData.source === 'live' ? 'Live rates' : rateData.source === 'cache' ? 'Cached rates' : 'Approximate rates'}
+                    </span>
+                    {rateData.updatedAt && <span style={{ color:'var(--text-dim)' }}>· Updated {new Date(rateData.updatedAt).toLocaleTimeString()}</span>}
+                  </>
+                ) : null}
+              </div>
+            </div>
             <div className="conv-row single"><Field label="Amount (INR ₹)" value={inr} onChange={setInr}/></div>
-            <div className="conv-row">
-              <Field label="🇺🇸 USD ($)" value={fmt(n(inr)*0.012)} readOnly/>
-              <Field label="🇪🇺 EUR (€)" value={fmt(n(inr)*0.011)} readOnly/>
-            </div>
-            <div className="conv-row">
-              <Field label="🇬🇧 GBP (£)" value={fmt(n(inr)*0.0095)} readOnly/>
-              <Field label="🇯🇵 JPY (¥)" value={fmt(n(inr)*1.85)} readOnly/>
-            </div>
-            <div className="conv-row">
-              <Field label="🇦🇪 AED (د.إ)" value={fmt(n(inr)*0.044)} readOnly/>
-              <Field label="🇸🇬 SGD (S$)" value={fmt(n(inr)*0.016)} readOnly/>
-            </div>
-            <div className="conv-note">📊 Approximate rates for reference · 1 INR ≈ 0.012 USD</div>
+            {ratesLoading ? (
+              <div style={{ padding:'32px', textAlign:'center', color:'var(--text-muted)', fontSize:14 }}>⏳ Loading live exchange rates…</div>
+            ) : (
+              <>
+                <div className="conv-row">
+                  {CURRENCIES.slice(0,2).map(c => <Field key={c.code} label={c.label} value={rateData ? (n(inr)*(rateData.rates[c.code]??0)).toFixed(c.decimals) : '—'} readOnly/>)}
+                </div>
+                <div className="conv-row">
+                  {CURRENCIES.slice(2,4).map(c => <Field key={c.code} label={c.label} value={rateData ? (n(inr)*(rateData.rates[c.code]??0)).toFixed(c.decimals) : '—'} readOnly/>)}
+                </div>
+                <div className="conv-row">
+                  {CURRENCIES.slice(4,6).map(c => <Field key={c.code} label={c.label} value={rateData ? (n(inr)*(rateData.rates[c.code]??0)).toFixed(c.decimals) : '—'} readOnly/>)}
+                </div>
+                <div className="conv-row">
+                  {CURRENCIES.slice(6,8).map(c => <Field key={c.code} label={c.label} value={rateData ? (n(inr)*(rateData.rates[c.code]??0)).toFixed(c.decimals) : '—'} readOnly/>)}
+                </div>
+                <div className="conv-note">
+                  {rateData?.source === 'fallback'
+                    ? `⚠️ ${rateData.note || 'Showing approximate rates. Add EXCHANGE_RATE_API_KEY for live data.'}`
+                    : `📡 Live rates from ExchangeRate-API · 1 INR = ${rateData?.rates?.USD?.toFixed(5) ?? '…'} USD · Refreshes hourly`
+                  }
+                </div>
+              </>
+            )}
           </>
         )}
 
