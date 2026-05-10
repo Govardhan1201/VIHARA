@@ -69,37 +69,42 @@ export default async function HomePage() {
       {/* ── AI FEATURES STRIP ── */}
       <section className="section" style={{ background:'var(--surface)' }}>
         <div className="container">
-          <div className="ai-grid">
-            <div>
-              <div className="badge badge-teal" style={{ marginBottom:20 }}>✦ AI Powered</div>
-              <h2 className="section-title">{t('ai_title')}</h2>
-              <hr className="section-divider" />
-              <p style={{ color:'var(--text-muted)', fontSize:15, lineHeight:1.8, marginBottom:32 }}>{t('ai_sub')}</p>
-              <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-                {[['✨','AI Travel Story Generator','./story'],['🧭','Crowd Prediction AI','./crowd'],['🍛','Local Food Explorer','./food']].map(([icon,label,href]) => (
-                  <a key={href} href={href} className="ai-link" style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 18px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', textDecoration:'none', transition:'all var(--dur)' }}>
-                    <span style={{ fontSize:22 }}>{icon}</span>
-                    <span style={{ fontFamily:'DM Sans,sans-serif', fontWeight:600, color:'var(--text)', fontSize:14 }}>{label}</span>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'48px 64px' }}>
+              {/* Left Column Header Block */}
+              <div>
+                <div className="badge badge-teal" style={{ marginBottom:20 }}>✦ AI Powered</div>
+                <h2 className="section-title">{t('ai_title')}</h2>
+                <hr className="section-divider" />
+                <p style={{ color:'var(--text-muted)', fontSize:15, lineHeight:1.8, marginBottom:0 }}>{t('ai_sub')}</p>
+              </div>
+              
+              {/* Right Column (Empty space to maintain grid alignment with header) */}
+              <div />
+
+              {/* Grid Rows for Features and Steps */}
+              {[
+                { icon:'✨', label:'AI Travel Story Generator', href:'./story', stepIcon:'📷', st:'Upload travel photos', sd:'Share your journey images with VIHARA AI' },
+                { icon:'🧭', label:'Crowd Prediction AI', href:'./crowd', stepIcon:'🤖', st:'AI crafts your story', sd:'Gemini writes a cinematic, soulful travel journal' },
+                { icon:'🍛', label:'Local Food Explorer', href:'./food', stepIcon:'📋', st:'Share & remember', sd:'Copy your story or social caption instantly' }
+              ].map((item, idx) => (
+                <div key={idx} style={{ display:'contents' }}>
+                  <a href={item.href} className="ai-link" style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 18px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', textDecoration:'none', transition:'all var(--dur)', alignSelf: 'center' }}>
+                    <span style={{ fontSize:22 }}>{item.icon}</span>
+                    <span style={{ fontFamily:'DM Sans,sans-serif', fontWeight:600, color:'var(--text)', fontSize:14 }}>{item.label}</span>
                     <span style={{ marginLeft:'auto', color:'var(--teal)', fontSize:14 }}>→</span>
                   </a>
-                ))}
-              </div>
-            </div>
-            <div style={{ position:'relative', display:'grid', gap:16 }}>
-              {[{icon:'📷',t:'Upload travel photos',d:'Share your journey images with VIHARA AI'},
-                {icon:'🤖',t:'AI crafts your story',d:'Gemini writes a cinematic, soulful travel journal'},
-                {icon:'📋',t:'Share & remember',d:'Copy your story or social caption instantly'}].map((s, idx) => (
-                <div key={s.t} className="step-card">
-                  <div className="step-line" />
-                  <div style={{ width:44, height:44, background:'var(--teal-dim)', border:'1px solid var(--teal-border)', borderRadius:'var(--r-sm)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, zIndex:1 }}>{s.icon}</div>
-                  <div style={{ zIndex:1 }}>
-                    <div style={{ fontWeight:700, color:'var(--text)', marginBottom:4, fontSize:14 }}>{s.t}</div>
-                    <div style={{ fontSize:13, color:'var(--text-muted)', lineHeight:1.5 }}>{s.d}</div>
+
+                  <div className="step-card" style={{ alignSelf: 'center' }}>
+                    <div className="step-line" style={{ top: '50px', bottom: '-48px' }} />
+                    <div style={{ width:44, height:44, background:'var(--teal-dim)', border:'1px solid var(--teal-border)', borderRadius:'var(--r-sm)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, zIndex:1 }}>{item.stepIcon}</div>
+                    <div style={{ zIndex:1 }}>
+                      <div style={{ fontWeight:700, color:'var(--text)', marginBottom:4, fontSize:14 }}>{item.st}</div>
+                      <div style={{ fontSize:13, color:'var(--text-muted)', lineHeight:1.4 }}>{item.sd}</div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
         </div>
       </section>
 
