@@ -28,8 +28,9 @@ export default async function HomePage() {
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
         <div className="hero-overlay" />
-        <div className="hero-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(60px, 15vw, 150px)', fontWeight: 900, letterSpacing: '0.1em', margin: 0, textTransform: 'uppercase', textShadow: '0 10px 30px rgba(0,0,0,0.8)', color: 'var(--gold)' }}>VIHARA</h1>
+        <div className="hero-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', paddingBottom: '10vh' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(50px, 12vw, 120px)', fontWeight: 900, letterSpacing: '0.15em', margin: 0, textTransform: 'uppercase', textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.6)', color: 'var(--gold)' }}>VIHARA</h1>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(14px, 3vw, 20px)', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)', textShadow: '0 2px 10px rgba(0,0,0,0.8)', marginTop: '16px' }}>Discover the soul of Bharat</p>
         </div>
         <style>{`
           @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
