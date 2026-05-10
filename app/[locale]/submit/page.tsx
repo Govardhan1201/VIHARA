@@ -1,7 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function SubmitPage() {
+  const t = useTranslations('submit');
   const [form, setForm] = useState({ placeName:'', state:'', subZone:'', description:'', activity:'', duration:'', budget:'', transport:'', accommodation:'budget', emoji:'🌟', mapLink:'', imageLink:'', videoLink:'', submitterName:'', submitterEmail:'' });
   const [status, setStatus] = useState('');
   const [pending, setPending] = useState<any[]>([]);
@@ -62,28 +64,28 @@ export default function SubmitPage() {
   );
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto' }}>
+    <div className="container" style={{ maxWidth: 860, paddingBottom: 80 }}>
       <div className="page-hero">
-        <h1>✍️ Submit Your Hidden Gem</h1>
-        <p className="tagline">Share your favourite offbeat location with the VIHARA community</p>
+        <h1 style={{ fontFamily: 'Playfair Display, serif' }}>✍️ {t('title')}</h1>
+        <p className="sub">{t('sub')}</p>
       </div>
 
       {/* AI Autofill Banner */}
-      <div style={{ display:'flex', alignItems:'center', gap:'14px', padding:'18px 22px', marginBottom:'24px', borderRadius:'var(--r-lg)', background:'var(--gold-dim)', border:'1px solid var(--border-gold)' }}>
+      <div className="card" style={{ display:'flex', alignItems:'center', gap:'14px', padding:'18px 22px', marginBottom:'24px', background:'var(--gold-dim)', borderColor:'var(--gold-border)' }}>
         <span style={{ fontSize:'28px' }}>🤖</span>
         <div style={{ flex:1 }}>
-          <div style={{ fontFamily:'var(--heading)', fontWeight:700, color:'var(--gold)', fontSize:'14px', marginBottom:'2px' }}>AI Auto-Fill</div>
-          <div style={{ fontSize:'12px', color:'var(--text-muted)' }}>Enter a place name and let our AI automatically fill in the details for you.</div>
+          <div style={{ fontFamily:'DM Sans, sans-serif', fontWeight:700, color:'var(--gold)', fontSize:'14px', marginBottom:'2px' }}>{t('ai_fill')}</div>
+          <div style={{ fontSize:'12px', color:'var(--text-muted)' }}>{t('ai_fill_desc')}</div>
         </div>
-        <button onClick={aiAutofill} disabled={aiLoading} className="btn btn-primary" style={{ flexShrink:0, fontSize:'12px' }}>
-          {aiLoading ? '⏳ Filling...' : '✨ Auto-Fill with AI'}
+        <button onClick={aiAutofill} disabled={aiLoading} className="btn btn-primary btn-sm" style={{ flexShrink:0 }}>
+          {aiLoading ? '⏳ ...' : `✨ ${t('ai_btn')}`}
         </button>
       </div>
 
       <form onSubmit={handleSubmit}>
         {/* Location Details */}
-        <div className="glass" style={{ padding:'28px', marginBottom:'20px', borderRadius:'var(--r-lg)' }}>
-          <div className="form-section-title">📍 Location Details</div>
+        <div className="glass" style={{ padding:'28px', marginBottom:'20px' }}>
+          <div className="form-section-label">📍 Location Details</div>
           <div className="form-grid">
             <InputField label="Place Name" name="placeName" placeholder="e.g. Anamudi Peak" required />
             <InputField label="State" name="state" options={['Select State','Andhra Pradesh','Telangana','Rajasthan','Goa','Other']} required />
@@ -93,8 +95,8 @@ export default function SubmitPage() {
         </div>
 
         {/* Description & Details */}
-        <div className="glass" style={{ padding:'28px', marginBottom:'20px', borderRadius:'var(--r-lg)' }}>
-          <div className="form-section-title">📝 Description & Details</div>
+        <div className="glass" style={{ padding:'28px', marginBottom:'20px' }}>
+          <div className="form-section-label">📝 Description & Details</div>
           <div className="form-group" style={{ marginBottom:'20px' }}>
             <label className="field-label">Description <span style={{color:'var(--gold)'}}>*</span></label>
             <textarea className="field-input" placeholder="Describe this hidden gem..." value={form.description} onChange={e => set('description', e.target.value)} required />
@@ -109,8 +111,8 @@ export default function SubmitPage() {
         </div>
 
         {/* Links & Contact */}
-        <div className="glass" style={{ padding:'28px', marginBottom:'28px', borderRadius:'var(--r-lg)' }}>
-          <div className="form-section-title">🔗 Links & Contact</div>
+        <div className="glass" style={{ padding:'28px', marginBottom:'28px' }}>
+          <div className="form-section-label">🔗 Links & Contact</div>
           <div className="form-grid">
             <InputField label="Google Maps Link" name="mapLink" type="url" placeholder="https://maps.app.goo.gl/..." />
             <InputField label="Photos Link" name="imageLink" type="url" placeholder="https://..." />
@@ -129,7 +131,7 @@ export default function SubmitPage() {
 
       {/* Pending Submissions */}
       <div style={{ marginTop:'52px' }}>
-        <div className="section-title">📤 Pending Submissions <span style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'var(--font)', fontWeight:400 }}>({pending.length})</span></div>
+        <div className="form-section-label">📤 Pending Submissions <span style={{ fontSize:'13px', color:'var(--text-muted)', fontFamily:'Inter, sans-serif', fontWeight:400 }}>({pending.length})</span></div>
         {pending.length === 0 ? (
           <div className="glass" style={{ padding:'48px', textAlign:'center', borderRadius:'var(--r-lg)' }}>
             <div style={{ fontSize:'32px', marginBottom:'10px' }}>🌟</div>

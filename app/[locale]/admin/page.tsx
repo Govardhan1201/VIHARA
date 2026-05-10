@@ -43,7 +43,7 @@ export default function AdminPage() {
   const shown = tab==='pending' ? pending : tab==='approved' ? approved : rejected;
 
   return (
-    <div style={{ maxWidth:1000, margin:'0 auto' }}>
+    <div className="container" style={{ maxWidth: 1000, paddingBottom: 80 }}>
       <div className="page-hero">
         <h1>🔐 Admin Panel</h1>
         <p className="tagline">Review, approve and manage community destination submissions</p>
@@ -53,7 +53,7 @@ export default function AdminPage() {
         <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'45vh' }}>
           <div className="glass glass-gold" style={{ padding:'52px 44px', maxWidth:420, width:'100%', textAlign:'center', borderRadius:'var(--r-xl)' }}>
             <div style={{ fontSize:'52px', marginBottom:'16px' }}>🔐</div>
-            <h2 style={{ fontFamily:'var(--heading)', fontSize:'26px', fontWeight:800, color:'var(--gold)', marginBottom:'8px' }}>Admin Login</h2>
+            <h2 style={{ fontFamily:'Playfair Display, serif', fontSize:'26px', fontWeight:800, color:'var(--gold)', marginBottom:'8px' }}>Admin Login</h2>
             <p style={{ color:'var(--text-muted)', marginBottom:'32px', fontSize:'13px' }}>Enter your password to access the admin dashboard</p>
             <div style={{ marginBottom:'16px' }}>
               <label className="field-label">Admin Password</label>
@@ -72,7 +72,7 @@ export default function AdminPage() {
           {/* Top Bar */}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'28px', flexWrap:'wrap', gap:'12px' }}>
             <div>
-              <h2 style={{ fontFamily:'var(--heading)', fontSize:'22px', fontWeight:800 }}>Admin Dashboard</h2>
+              <h2 style={{ fontFamily:'Playfair Display, serif', fontSize:'22px', fontWeight:800 }}>Admin Dashboard</h2>
               <div style={{ display:'inline-flex', alignItems:'center', gap:'6px', marginTop:'6px', padding:'4px 12px', borderRadius:'20px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.25)', fontSize:'11px', color:'#10b981', fontWeight:600 }}>
                 <span style={{ width:7, height:7, borderRadius:'50%', background:'#10b981', display:'inline-block' }}/>
                 Logged in as Admin
@@ -114,7 +114,7 @@ export default function AdminPage() {
                 <div key={s.id} className="submission-card">
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:'14px' }}>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontFamily:'var(--heading)', color:'var(--gold)', fontSize:'18px', fontWeight:700, marginBottom:'12px' }}>
+                      <div style={{ fontFamily:'Playfair Display, serif', color:'var(--gold)', fontSize:'18px', fontWeight:700, marginBottom:'12px' }}>
                         {s.emoji} {s.placeName}
                       </div>
                       <div style={{ display:'grid', gap:'7px', fontSize:'13px' }}>

@@ -1,108 +1,146 @@
-import StoryGenerator from '@/components/StoryGenerator';
-import FoodExplorer from '@/components/FoodExplorer';
-import CrowdPredictor from '@/components/CrowdPredictor';
+import { getTranslations } from 'next-intl/server';
+import { getLocale } from 'next-intl/server';
 
-const stats = [
-  { value: '24+', label: 'Hidden Gems' },
-  { value: '8', label: 'Destinations' },
-  { value: '₹500', label: 'Trips From' },
-  { value: 'AI', label: 'Powered' },
+const FEATURES = [
+  { icon:'🗺️', key:'0' }, { icon:'✨', key:'1' }, { icon:'🍛', key:'2' },
+  { icon:'🧭', key:'3' }, { icon:'💱', key:'4' }, { icon:'💡', key:'5' },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const t = await getTranslations('home');
+  const ta = await getTranslations('about');
+
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-      {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section style={{ textAlign: 'center', padding: '72px 32px 56px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 18px', borderRadius: 50, background: 'var(--gold-dim)', border: '1px solid var(--border-gold)', marginBottom: 24 }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--gold)', display: 'inline-block' }} />
-          <span style={{ fontSize: 12, color: 'var(--gold)', fontWeight: 600, letterSpacing: '0.5px' }}>Discover India's Hidden Gems</span>
+    <>
+      {/* ── VIDEO HERO ── */}
+      <section className="hero" style={{ marginTop:'-72px' }}>
+        {/* Fallback gradient (always shown behind video) */}
+        <div className="hero-fallback" style={{
+          background: 'linear-gradient(135deg,#080C0C 0%,#0d1a14 35%,#0c100a 60%,#0a0f18 100%)',
+          animation: 'none',
+        }}>
+          {/* Decorative orbs */}
+          <div style={{ position:'absolute', width:600, height:600, borderRadius:'50%', background:'radial-gradient(circle,rgba(201,150,90,0.07) 0%,transparent 70%)', top:'20%', left:'10%', pointerEvents:'none' }} />
+          <div style={{ position:'absolute', width:500, height:500, borderRadius:'50%', background:'radial-gradient(circle,rgba(78,205,196,0.05) 0%,transparent 70%)', bottom:'10%', right:'15%', pointerEvents:'none' }} />
         </div>
-        <h1 className="gradient-text" style={{ fontSize: 'clamp(52px,10vw,88px)', fontWeight: 900, letterSpacing: '-3px', lineHeight: 1.0, marginBottom: 20 }}>
-          VIHARA
-        </h1>
-        <p style={{ fontSize: 'clamp(16px,2.5vw,22px)', color: 'var(--gold)', fontStyle: 'italic', marginBottom: 16 }}>
-          Wander the Unseen. Discover the Soul of Bharat.
-        </p>
-        <p style={{ fontSize: 15, color: 'var(--text-muted)', maxWidth: 540, margin: '0 auto 40px', lineHeight: 1.8 }}>
-          Authentic Experiences &nbsp;·&nbsp; Budget Smart &nbsp;·&nbsp; Off-Beat Adventures
-        </p>
-        <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="/en/explore" className="btn btn-primary btn-lg">🚀 Start Exploring</a>
-          <a href="/en/story" className="btn btn-secondary" style={{ borderRadius: 50, padding: '14px 28px', fontSize: 14 }}>✨ Create Travel Story</a>
+        {/* User-replaceable video — place your video at /public/videos/hero.mp4 */}
+        <video className="hero-video" autoPlay muted loop playsInline>
+          <source src="/videos/hero.mp4" type="video/mp4" />
+        </video>
+        <div className="hero-overlay" />
+        <div className="hero-content">
+          <div className="hero-badge">
+            <span style={{ width:6, height:6, borderRadius:'50%', background:'var(--gold)', display:'inline-block', animation:'pulse 2s infinite' }} />
+            {t('badge')}
+          </div>
+          <h1 className="hero-title">{t('title')}</h1>
+          <p className="hero-tagline">{t('tagline')}</p>
+          <p className="hero-tagline" style={{ marginBottom:8 }}>{t('tagline2')}</p>
+          <p className="hero-sub">{t('sub')}</p>
+          <div className="hero-ctas">
+            <a href="./explore" className="btn btn-primary" style={{ fontSize:15, padding:'14px 32px' }}>
+              🚀 {t('cta_explore')}
+            </a>
+            <a href="./story" className="btn btn-secondary" style={{ fontSize:15, padding:'14px 32px' }}>
+              ✨ {t('cta_story')}
+            </a>
+          </div>
+        </div>
+        <div className="hero-scroll">
+          <span>{t('scroll')}</span>
+          <div className="hero-scroll-line" />
+        </div>
+        <style>{`
+          @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+          @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        `}</style>
+      </section>
+
+      {/* ── FEATURES GRID ── */}
+      <section className="section" style={{ background:'var(--bg)' }}>
+        <div className="container">
+          <div className="section-header" style={{ textAlign:'center' }}>
+            <div className="badge badge-gold section-badge">{t('features_title')}</div>
+            <h2 className="section-title">{t('features_sub')}</h2>
+          </div>
+          <div className="feat-grid">
+            {FEATURES.map((f, i) => {
+              const feats = ta.raw('features') as any[];
+              const feat = feats[i];
+              const hrefs = ['./explore','./story','./food','./crowd','./converters','./tips'];
+              return (
+                <a key={i} href={hrefs[i]} style={{ textDecoration:'none' }}>
+                  <div className="feat-card">
+                    <div className="feat-icon">{f.icon}</div>
+                    <div className="feat-title">{feat?.title}</div>
+                    <p className="feat-desc">{feat?.desc}</p>
+                    <div style={{ marginTop:20, fontSize:12, color:'var(--gold)', fontWeight:600 }}>Explore →</div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* ── STATS ─────────────────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 64 }}>
-        {stats.map(s => (
-          <div key={s.label} className="glass" style={{ padding: 24, textAlign: 'center', borderRadius: 'var(--r-lg)' }}>
-            <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, color: 'var(--gold)' }}>{s.value}</div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginTop: 4 }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── WHAT YOU CAN DO ───────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 16 }}>
-        <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 800, marginBottom: 8 }}>
-          Everything You Need to <span className="text-gold">Explore India</span>
-        </h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: 32, fontSize: 14 }}>
-          Curated hidden gems, AI storytelling, local food discovery, and crowd-aware travel planning.
-        </p>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 18, marginBottom: 72 }}>
-        {[
-          { icon: '🏖️', title: 'Hidden Gems', desc: 'Discover lesser-known destinations across India with authentic travel experiences away from tourist crowds.', href: '/en/explore' },
-          { icon: '🗺️', title: 'Interactive Map', desc: 'Explore on a Leaflet map with state zones, sub-zone drill-down and real-time location tracking.', href: '/en/explore' },
-          { icon: '🔄', title: 'Converters', desc: 'Convert currencies, time zones, distances, weights, and speeds — your all-in-one travel toolkit.', href: '/en/converters' },
-          { icon: '💡', title: 'Travel Tips', desc: '9 curated tips + emergency numbers + a pre-trip checklist for smarter, safer adventures.', href: '/en/tips' },
-          { icon: '✍️', title: 'Share a Gem', desc: 'Submit your favourite offbeat spot and help other travelers discover the untouched beauty of India.', href: '/en/submit' },
-          { icon: '🤖', title: 'AI Assistant', desc: 'Ask VIHARA AI anything — destination recs, budget advice, and local insights powered by Gemini.', href: '/en/explore' },
-        ].map(card => (
-          <a key={card.title} href={card.href} style={{ textDecoration: 'none' }}>
-            <div className="glass glass-hover" style={{ padding: 28, borderRadius: 'var(--r-lg)', height: '100%' }}>
-              <div style={{ width: 52, height: 52, borderRadius: 'var(--r-md)', background: 'var(--gold-dim)', border: '1px solid var(--border-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginBottom: 18 }}>
-                {card.icon}
+      {/* ── AI FEATURES STRIP ── */}
+      <section className="section" style={{ background:'var(--surface)' }}>
+        <div className="container">
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'center' }}>
+            <div>
+              <div className="badge badge-teal" style={{ marginBottom:20 }}>✦ AI Powered</div>
+              <h2 className="section-title">{t('ai_title')}</h2>
+              <hr className="section-divider" />
+              <p style={{ color:'var(--text-muted)', fontSize:15, lineHeight:1.8, marginBottom:32 }}>{t('ai_sub')}</p>
+              <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+                {[['✨','AI Travel Story Generator','./story'],['🧭','Crowd Prediction AI','./crowd'],['🍛','Local Food Explorer','./food']].map(([icon,label,href]) => (
+                  <a key={href} href={href} style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 18px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', textDecoration:'none', transition:'all var(--dur)' }}
+                    onMouseEnter={(e:any) => { e.currentTarget.style.borderColor='var(--teal-border)'; e.currentTarget.style.transform='translateX(4px)'; }}
+                    onMouseLeave={(e:any) => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.transform='none'; }}
+                  >
+                    <span style={{ fontSize:22 }}>{icon}</span>
+                    <span style={{ fontFamily:'DM Sans,sans-serif', fontWeight:600, color:'var(--text)', fontSize:14 }}>{label}</span>
+                    <span style={{ marginLeft:'auto', color:'var(--teal)', fontSize:14 }}>→</span>
+                  </a>
+                ))}
               </div>
-              <h3 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--gold)', fontSize: 16, fontWeight: 700, marginBottom: 10 }}>{card.title}</h3>
-              <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7 }}>{card.desc}</p>
             </div>
-          </a>
-        ))}
-      </div>
-
-      {/* ── AI FEATURES SECTION ───────────────────────────────────────────── */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 16px', borderRadius: 50, background: 'rgba(50,184,198,0.08)', border: '1px solid rgba(50,184,198,0.2)', marginBottom: 16 }}>
-          <span style={{ fontSize: 12, color: 'var(--teal)', fontWeight: 700, letterSpacing: '0.5px' }}>✦ NEW AI FEATURES</span>
+            <div style={{ display:'grid', gap:16 }}>
+              {[{icon:'📷',t:'Upload travel photos',d:'Share your journey images with VIHARA AI'},
+                {icon:'🤖',t:'AI crafts your story',d:'Gemini writes a cinematic, soulful travel journal'},
+                {icon:'📋',t:'Share & remember',d:'Copy your story or social caption instantly'}].map(s => (
+                <div key={s.t} style={{ padding:'22px 24px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-lg)', display:'flex', gap:16, alignItems:'flex-start' }}>
+                  <div style={{ width:44, height:44, background:'var(--teal-dim)', border:'1px solid var(--teal-border)', borderRadius:'var(--r-sm)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>{s.icon}</div>
+                  <div><div style={{ fontWeight:700, color:'var(--text)', marginBottom:4, fontSize:14 }}>{s.t}</div><div style={{ fontSize:13, color:'var(--text-muted)' }}>{s.d}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 800, marginBottom: 8 }}>
-          Travel Smarter with <span className="text-teal">AI Assistance</span>
-        </h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: 36, fontSize: 14 }}>
-          Three intelligent layers designed to deepen discovery, tell better stories, and help you travel at the right time.
-        </p>
-      </div>
+      </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))', gap: 20, marginBottom: 72 }}>
-        <StoryGenerator compact />
-        <FoodExplorer compact />
-        <CrowdPredictor compact />
-      </div>
+      {/* ── CTA BANNER ── */}
+      <section className="section">
+        <div className="container">
+          <div style={{ textAlign:'center', padding:'72px 32px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--r-xl)', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 50% 0%,rgba(201,150,90,0.08),transparent 60%)', pointerEvents:'none' }} />
+            <div className="badge badge-gold" style={{ marginBottom:24 }}>🌍 Ready to Wander?</div>
+            <h2 style={{ fontFamily:'Playfair Display,serif', fontSize:'clamp(28px,5vw,48px)', fontWeight:900, marginBottom:16, color:'var(--text)' }}>
+              Discover the <span className="gradient-text">Unseen India</span>
+            </h2>
+            <p style={{ color:'var(--text-muted)', marginBottom:40, fontSize:16, maxWidth:500, margin:'0 auto 40px' }}>
+              Hidden valleys, tribal cultures, coastal secrets — all in one place, powered by AI.
+            </p>
+            <div style={{ display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
+              <a href="./explore" className="btn btn-primary" style={{ padding:'14px 32px', fontSize:15 }}>Start Exploring</a>
+              <a href="./about" className="btn btn-secondary" style={{ padding:'14px 32px', fontSize:15 }}>Learn About VIHARA</a>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      {/* ── STORY TEASER ──────────────────────────────────────────────────── */}
-      <div className="glass glass-gold" style={{ padding: '52px 44px', textAlign: 'center', borderRadius: 'var(--r-xl)', background: 'linear-gradient(135deg, var(--gold-dim), var(--teal-dim))', marginBottom: 24, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ fontSize: 42, marginBottom: 16 }}>✨</div>
-        <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 28, fontWeight: 800, marginBottom: 12 }}>
-          Turn Your Memories Into Stories
-        </h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: 32, maxWidth: 480, margin: '0 auto 32px', lineHeight: 1.8 }}>
-          Upload your travel photos and let VIHARA AI craft a cinematic travel journal — soulful, specific, and ready to share.
-        </p>
-        <a href="/en/story" className="btn btn-primary btn-lg">✨ Try Story Generator</a>
-      </div>
-    </div>
+      {/* Video placeholder note */}
+      <div style={{ display:'none' }}>Add your travel video to /public/videos/hero.mp4 to enable the video hero background</div>
+    </>
   );
 }

@@ -14,8 +14,10 @@ function Field({ label, value, readOnly, onChange }: { label:string; value:strin
     </div>
   );
 }
+import { useTranslations } from 'next-intl';
 
 export default function ConvertersPage() {
+  const t = useTranslations('converters');
   const [tab, setTab] = useState<Tab>('currency');
   const [inr, setInr] = useState('1000');
   const [km, setKm] = useState('100');
@@ -49,10 +51,10 @@ export default function ConvertersPage() {
   const tempFeeling = n(celsius)<=0?'🥶 Freezing':n(celsius)<=10?'🌨️ Chilly':n(celsius)<=20?'🍃 Cool':n(celsius)<=30?'☀️ Warm':'🔥 Hot';
 
   return (
-    <div style={{ maxWidth:860, margin:'0 auto' }}>
+    <div className="container" style={{ maxWidth: 860, paddingBottom: 80 }}>
       <div className="page-hero">
-        <h1>🔄 Universal Converter</h1>
-        <p className="tagline">Currency, distances, weights, temperatures, speeds & time zones</p>
+        <h1 style={{ fontFamily: 'Playfair Display, serif' }}>🔄 {t('title')}</h1>
+        <p className="sub">{t('sub')}</p>
       </div>
 
       {/* Tabs */}

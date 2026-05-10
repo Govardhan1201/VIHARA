@@ -19,12 +19,16 @@ const emergencyNumbers = [
   { label:'🏥 NDRF', num:'011-24363260' },
 ];
 
-export default function TipsPage() {
+import { getTranslations } from 'next-intl/server';
+
+export default async function TipsPage() {
+  const t = await getTranslations('tips');
+
   return (
-    <div style={{ maxWidth:1100, margin:'0 auto' }}>
+    <div className="container" style={{ maxWidth: 1100, paddingBottom: 80 }}>
       <div className="page-hero">
-        <h1>💡 Travel Tips</h1>
-        <p className="tagline">Essential advice for every kind of traveler exploring India</p>
+        <h1 style={{ fontFamily: 'Playfair Display, serif' }}>💡 {t('title')}</h1>
+        <p className="sub">{t('sub')}</p>
       </div>
 
       <div className="tips-grid">
@@ -39,7 +43,7 @@ export default function TipsPage() {
 
       {/* Emergency Numbers */}
       <div style={{ marginTop:'48px' }}>
-        <div className="section-title">🆘 Emergency Numbers in India</div>
+        <div className="form-section-label">🆘 Emergency Numbers in India</div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'14px' }}>
           {emergencyNumbers.map(({label,num})=>(
             <div key={label} className="glass" style={{ padding:'18px 22px', borderRadius:'var(--r-lg)', display:'flex', justifyContent:'space-between', alignItems:'center', transition:'all var(--dur) var(--ease)' }}>
@@ -52,7 +56,7 @@ export default function TipsPage() {
 
       {/* Quick Checklist */}
       <div className="glass glass-gold" style={{ marginTop:'36px', padding:'32px', borderRadius:'var(--r-xl)', background:'linear-gradient(135deg,var(--gold-dim),var(--teal-dim))' }}>
-        <div className="section-title">✅ Pre-Trip Checklist</div>
+        <div className="form-section-label">✅ Pre-Trip Checklist</div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))', gap:'10px' }}>
           {['Valid ID / Passport / Aadhaar','Book stays & transport in advance','Download offline maps','Pack first-aid essentials','Inform someone of your itinerary','Check weather forecast','Keep emergency numbers saved','Carry sufficient cash','Charge all devices before leaving','Travel insurance policy copy'].map(item=>(
             <div key={item} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'10px 14px', background:'rgba(255,255,255,0.04)', borderRadius:'var(--r-sm)', border:'1px solid var(--border)', fontSize:'13px', color:'var(--text-muted)' }}>

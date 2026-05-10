@@ -1,15 +1,136 @@
 {
-  "Navigation": {
-    "home": "Home",
-    "explore": "Explore",
-    "submit": "Submit Destination",
-    "converters": "Converters",
-    "tips": "Tips & Tricks",
-    "admin": "Admin"
+  "nav": {
+    "home": "Home", "explore": "Explore", "story": "Travel Stories",
+    "food": "Local Food", "crowd": "Crowd AI", "converters": "Converters",
+    "tips": "Travel Tips", "submit": "Submit Gem", "about": "About"
   },
-  "Home": {
-    "heroTitle": "Discover India's Hidden Gems",
-    "heroSubtitle": "Journey to places unknown. Find the untamed, the untouched, and the unbelievably beautiful.",
-    "exploreBtn": "Start Exploring"
+  "lang": { "en": "EN", "hi": "हि", "te": "తె" },
+  "home": {
+    "badge": "India's Hidden Gems Platform",
+    "title": "VIHARA",
+    "tagline": "Wander the Unseen.",
+    "tagline2": "Discover the Soul of Bharat.",
+    "sub": "Offbeat destinations · Local culture · AI-assisted discovery",
+    "cta_explore": "Start Exploring",
+    "cta_story": "Create Your Story",
+    "scroll": "Scroll to explore",
+    "features_title": "Every Tool You Need",
+    "features_sub": "From AI storytelling to crowd prediction — built for the curious traveler",
+    "ai_title": "Powered by AI, Rooted in India",
+    "ai_sub": "Three intelligent layers to make every journey richer"
+  },
+  "about": {
+    "badge": "Our Story",
+    "title": "What is VIHARA?",
+    "desc": "An AI-powered offbeat travel discovery platform, built for those who seek India beyond the obvious — the tribal valleys, coastal villages, and silent hilltops that don't appear on tourist maps.",
+    "how_title": "How to Use",
+    "how_sub": "Three simple steps to your next hidden adventure",
+    "steps": [
+      { "n": "01", "title": "Explore Destinations", "desc": "Browse 24+ curated hidden gems by state, zone, activity, or budget. Use the interactive map to find spots near you." },
+      { "n": "02", "title": "Plan Intelligently", "desc": "Check crowd predictions before you go, explore local foods, and get personalized recommendations from VIHARA AI." },
+      { "n": "03", "title": "Document & Share", "desc": "Upload your travel photos and let AI craft a cinematic travel story. Share your journey with the community." }
+    ],
+    "features_title": "What VIHARA Offers",
+    "features": [
+      { "icon": "🗺️", "title": "Hidden Gem Discovery", "desc": "Curated offbeat destinations across India, filtered by activity, duration, and budget." },
+      { "icon": "✨", "title": "AI Story Generator", "desc": "Upload travel photos, get a cinematic travel journal crafted by Gemini AI." },
+      { "icon": "🍛", "title": "Local Food Explorer", "desc": "Discover authentic dishes near every destination — tribal, coastal, street food and more." },
+      { "icon": "🧭", "title": "Crowd Prediction AI", "desc": "Know before you go — predict crowd levels using season, festivals, and day type." },
+      { "icon": "💱", "title": "Universal Converters", "desc": "Currency, distance, weight, temperature, speed, and live time zones." },
+      { "icon": "💡", "title": "Travel Tips", "desc": "Emergency numbers, packing advice, seasonal guides, and pre-trip checklists." }
+    ],
+    "stats": [
+      { "value": "24+", "label": "Hidden Gems" },
+      { "value": "8", "label": "Indian States" },
+      { "value": "50+", "label": "Local Dishes" },
+      { "value": "3", "label": "Languages" }
+    ]
+  },
+  "chat": {
+    "title": "VIHARA AI",
+    "subtitle": "Your travel companion",
+    "placeholder": "Ask about destinations, food, or travel tips...",
+    "send": "Send",
+    "close": "Close",
+    "open": "Ask AI",
+    "lang_note": "I can respond in English, Hindi, or Telugu — just ask!",
+    "greeting": "Namaste! I'm your VIHARA travel companion. Ask me about hidden gems, local food, crowd predictions, or travel planning across India!"
+  },
+  "explore": {
+    "title": "Explore Destinations",
+    "sub": "Find your next off-beat adventure across India",
+    "ai_label": "AI Destination Finder",
+    "ai_placeholder": "e.g. tribal experiences under ₹1000, or peaceful hill stations in monsoon...",
+    "ask": "Ask AI",
+    "state": "Select State",
+    "zone": "Sub-Zone",
+    "filters": "Smart Filters",
+    "found": "destinations found",
+    "no_results": "No destinations match your filters.",
+    "tab_info": "Details",
+    "tab_food": "Local Food",
+    "tab_crowd": "Crowd AI"
+  },
+  "story": {
+    "title": "AI Travel Story Generator",
+    "sub": "Turn your travel photos into a cinematic journal",
+    "step1": "Upload your photos",
+    "step2": "AI crafts your story",
+    "step3": "Share your journey",
+    "upload_title": "Drop your travel photos here",
+    "upload_sub": "Or click to pick · Up to 6 images · JPG, PNG, WEBP",
+    "browse": "Browse Photos",
+    "destination": "Destination (optional)",
+    "dest_placeholder": "e.g. Araku, Goa, Hampi...",
+    "mood": "Story Mood (optional)",
+    "mood_auto": "Auto-detect from photos",
+    "generate": "Generate My Travel Story",
+    "generating": "Crafting your story...",
+    "social_caption": "Social Caption",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "new_story": "+ New Story",
+    "privacy": "Your photos stay private and are never stored.",
+    "error_no_images": "Upload at least one travel photo to begin."
+  },
+  "food": {
+    "title": "Local Food Explorer",
+    "sub": "Taste the place, not just visit it",
+    "all_dest": "All Destinations",
+    "all_types": "All Types",
+    "search": "Search dishes...",
+    "found": "dishes found"
+  },
+  "crowd": {
+    "title": "Crowd Prediction AI",
+    "sub": "Know before you go — choose quieter, richer travel windows",
+    "destination": "Destination",
+    "dest_placeholder": "e.g. Araku, Goa, Vizag...",
+    "month": "Month of Visit",
+    "time": "Time of Day",
+    "weekend": "Weekend / Holiday",
+    "festival": "Festival Period",
+    "predict": "Predict Crowd Level",
+    "disclaimer": "Predictions are based on seasonal patterns and travel trends. Actual conditions may vary.",
+    "best": "Best Window",
+    "avoid": "Avoid",
+    "low": "Low Crowd",
+    "moderate": "Moderate Crowd",
+    "high": "High Crowd"
+  },
+  "converters": {
+    "title": "Universal Converters",
+    "sub": "Currency, distances, weights, temperatures, speeds & time zones"
+  },
+  "tips": {
+    "title": "Travel Tips",
+    "sub": "Essential advice for every kind of traveler exploring India"
+  },
+  "submit": {
+    "title": "Submit a Hidden Gem",
+    "sub": "Share your favourite offbeat location with the VIHARA community",
+    "ai_fill": "AI Auto-Fill",
+    "ai_fill_desc": "Enter a place name and let AI fill in the details",
+    "ai_btn": "Auto-Fill with AI"
   }
 }

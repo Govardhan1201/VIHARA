@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { destinations, statesData, type Destination } from '@/lib/destinations';
 import FoodExplorer from '@/components/FoodExplorer';
 import CrowdPredictor from '@/components/CrowdPredictor';
+import { useTranslations } from 'next-intl';
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false, loading: () => (
   <div style={{ height: 420, background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
@@ -23,6 +24,7 @@ export default function ExplorePage() {
   const [popup, setPopup] = useState<Destination | null>(null);
   const [popupTab, setPopupTab] = useState<PopupTab>('info');
   const [filtered, setFiltered] = useState<Destination[]>(destinations);
+  const t = useTranslations('explore');
   const [allDests, setAllDests] = useState<Destination[]>(destinations);
   const [aiQuery, setAiQuery] = useState('');
   const [aiResult, setAiResult] = useState('');
@@ -75,29 +77,32 @@ export default function ExplorePage() {
   const openPopup = (dest: Destination) => { setPopup(dest); setPopupTab('info'); };
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-      <div className="page-hero"><h1>🌍 Explore Destinations</h1><p className="tagline">Find your next off-beat adventure across India</p></div>
+    <div className="container" style={{ paddingBottom: 80 }}>
+      <div className="page-hero">
+        <h1 style={{ fontFamily: 'Playfair Display, serif' }}>🌍 {t('title')}</h1>
+        <p className="sub">{t('sub')}</p>
+      </div>
 
       {/* AI Finder */}
-      <div className="glass glass-gold" style={{ padding: '24px 28px', marginBottom: 24, borderRadius: 'var(--r-lg)' }}>
+      <div className="glass glass-gold" style={{ padding: '24px 28px', marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <span style={{ fontSize: 20 }}>🤖</span>
-          <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, fontWeight: 700, color: 'var(--gold)' }}>AI Destination Finder</span>
-          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: 'var(--teal-dim)', color: 'var(--teal)', border: '1px solid rgba(50,184,198,0.2)' }}>Gemini Powered</span>
+          <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: 'var(--gold)' }}>{t('ai_label')}</span>
+          <span className="badge badge-teal">Gemini Powered</span>
         </div>
-        <div className="ai-search-bar">
+        <div className="ai-bar">
           <input value={aiQuery} onChange={e => setAiQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && askAI()}
-            placeholder="e.g. Best nature spots under ₹1000, or tribal experiences in Andhra Pradesh…" />
-          <button onClick={askAI} disabled={aiLoading} className="btn btn-primary" style={{ borderRadius: 50, padding: '10px 20px', fontSize: 13, flexShrink: 0 }}>
-            {aiLoading ? '…' : '✨ Ask AI'}
+            placeholder={t('ai_placeholder')} />
+          <button onClick={askAI} disabled={aiLoading} className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>
+            {aiLoading ? '…' : `✨ ${t('ask')}`}
           </button>
         </div>
         {aiResult && <div className="ai-result">{aiResult}</div>}
       </div>
 
       {/* State Bubbles */}
-      <div className="glass" style={{ padding: '24px 28px', marginBottom: 20, borderRadius: 'var(--r-lg)' }}>
-        <div className="section-title">📍 Step 1: Select State</div>
+      <div className="glass" style={{ padding: '24px 28px', marginBottom: 20 }}>
+        <div className="form-section-label">📍 Step 1: {t('state')}</div>
         <div className="bubble-wrap">
           {Object.keys(statesData).map(state => (
             <button key={state} className={`bubble ${selectedState === state ? 'active' : ''}`}
@@ -108,7 +113,7 @@ export default function ExplorePage() {
         </div>
         {selectedState && (
           <>
-            <div className="section-title" style={{ marginTop: 22 }}>📍 Step 2: Sub-Zone</div>
+            <div className="form-section-label" style={{ marginTop: 22 }}>📍 Step 2: {t('zone')}</div>
             <div className="bubble-wrap">
               {subZones.map(zone => (
                 <button key={zone} className={`bubble ${selectedSubZone === zone ? 'active' : ''}`}
@@ -137,8 +142,8 @@ export default function ExplorePage() {
       </div>
 
       {/* Filters */}
-      <div className="glass" style={{ padding: '24px 28px', marginBottom: 24, borderRadius: 'var(--r-lg)' }}>
-        <div className="section-title">🔍 Smart Filters</div>
+      <div className="glass" style={{ padding: '24px 28px', marginBottom: 24 }}>
+        <div className="form-section-label">🔍 {t('filters')}</div>
         <div className="form-grid">
           <div><label className="field-label">Activity</label>
             <select className="field-select" value={activity} onChange={e => setActivity(e.target.value)}>
@@ -165,11 +170,11 @@ export default function ExplorePage() {
       </div>
 
       {/* Destinations */}
-      <div className="section-title">✨ Destinations <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'Inter, sans-serif', fontWeight: 400 }}>({filtered.length} found)</span></div>
+      <div className="form-section-label">✨ Destinations <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'Inter, sans-serif', fontWeight: 400 }}>({filtered.length} {t('found')})</span></div>
       {filtered.length === 0 ? (
-        <div className="glass" style={{ padding: 60, textAlign: 'center', borderRadius: 'var(--r-lg)' }}>
+        <div className="glass" style={{ padding: 60, textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 12 }}>🔍</div>
-          <p style={{ color: 'var(--text-muted)' }}>No destinations match. Try broadening your filters.</p>
+          <p style={{ color: 'var(--text-muted)' }}>{t('no_results')}</p>
         </div>
       ) : (
         <div className="dest-grid">
@@ -202,25 +207,19 @@ export default function ExplorePage() {
           <div className="popup-box" style={{ maxWidth: 640 }}>
             <button className="popup-close" onClick={() => setPopup(null)}>✕</button>
 
-            <h2 style={{ color: 'var(--gold)', fontFamily: 'Outfit, sans-serif', fontSize: 22, marginBottom: 20, paddingRight: 32 }}>
+            <h2 style={{ color: 'var(--gold)', fontFamily: 'Playfair Display, serif', fontSize: 24, marginBottom: 20, paddingRight: 32 }}>
               {popup.emoji} {popup.name}
             </h2>
 
             {/* Popup Tabs */}
-            <div style={{ display: 'flex', gap: 2, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>
+            <div className="conv-tabs">
               {([
-                { key: 'info', label: '📋 Details' },
-                { key: 'food', label: '🍛 Local Food' },
-                { key: 'crowd', label: '🧭 Crowd AI' },
-              ] as { key: PopupTab; label: string }[]).map(t => (
-                <button key={t.key} onClick={() => setPopupTab(t.key)} style={{
-                  padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer',
-                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-                  color: popupTab === t.key ? 'var(--gold)' : 'var(--text-muted)',
-                  borderBottom: `2px solid ${popupTab === t.key ? 'var(--gold)' : 'transparent'}`,
-                  marginBottom: -1, transition: 'all 200ms',
-                }}>
-                  {t.label}
+                { key: 'info', label: `📋 ${t('tab_info')}` },
+                { key: 'food', label: `🍛 ${t('tab_food')}` },
+                { key: 'crowd', label: `🧭 ${t('tab_crowd')}` },
+              ] as { key: PopupTab; label: string }[]).map(tab => (
+                <button key={tab.key} onClick={() => setPopupTab(tab.key)} className={`conv-tab ${popupTab === tab.key ? 'active' : ''}`}>
+                  {tab.label}
                 </button>
               ))}
             </div>
