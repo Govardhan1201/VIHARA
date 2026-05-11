@@ -6,8 +6,10 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const { success } = await aiRatelimit.limit(ip);
-    if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please wait.' }, { status: 429 });
+    if (aiRatelimit) {
+      const { success } = await aiRatelimit.limit(ip);
+      if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please wait.' }, { status: 429 });
+    }
 
     const { state, days, style, budget } = await request.json();
     if (!state || !days) return NextResponse.json({ error: 'State and days required' }, { status: 400 });

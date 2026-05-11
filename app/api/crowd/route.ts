@@ -17,9 +17,11 @@ export interface CrowdAIResponse {
 export async function POST(request: Request) {
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const { success } = await crowdRatelimit.limit(ip);
-    if (!success) {
-      return NextResponse.json({ error: 'Rate limit exceeded. Please wait a moment.' }, { status: 429 });
+    if (crowdRatelimit) {
+      const { success } = await crowdRatelimit.limit(ip);
+      if (!success) {
+        return NextResponse.json({ error: 'Rate limit exceeded. Please wait a moment.' }, { status: 429 });
+      }
     }
 
     const { destination, month, isWeekend, isFestival, timeOfDay } = await request.json();

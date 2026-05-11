@@ -83,14 +83,60 @@ export default function StoryGenerator({ compact = false }: { compact?: boolean 
     setError(''); setLoading(true); setStory(null);
     try {
       const fd = new FormData();
-      files.forEach(f => fd.append('images', f));
+      
+      // Compress images before sending to avoid Vercel 4.5MB payload limit
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const compressedFile = await new Promise<File>((resolve) => {
+          const img = new Image();
+          img.src = URL.createObjectURL(file);
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 1024;
+            let width = img.width;
+            let height = img.height;
+            if (width > height && width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            } else if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() }));
+              } else {
+                resolve(file); // fallback
+              }
+            }, 'image/jpeg', 0.8);
+          };
+          img.onerror = () => resolve(file);
+        });
+        fd.append('images', compressedFile);
+      }
       if (destination) fd.append('destination', destination);
       if (mood) fd.append('mood', mood);
       const res = await fetch('/api/story', { method: 'POST', body: fd });
-      const data = await res.json();
+      if (!res.ok) {
+        // Handle HTTP errors like 413 Payload Too Large explicitly
+        if (res.status === 413) throw new Error('Images are too large. Please try with fewer or smaller photos.');
+        if (res.status === 429) throw new Error('Too many requests. Please try again in a minute.');
+      }
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error('Server returned an invalid response. Please try again.');
+      }
+      
       if (data.error) { setError(data.error); return; }
       setStory(data.story);
-    } catch { setError('Something went wrong. Please try again.'); }
+    } catch (e: any) { setError(e.message || 'Something went wrong. Please try again.'); }
     finally { setLoading(false); }
   };
 

@@ -10,8 +10,9 @@ export async function POST(request: Request) {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
               || request.headers.get('x-real-ip')
               || 'unknown';
-    const { success } = await aiRatelimit.limit(ip);
-    if (!success) {
+    if (aiRatelimit) {
+      const { success } = await aiRatelimit.limit(ip);
+      if (!success) {
       return NextResponse.json(
         { reply: "You're sending too many requests. Please wait a moment before trying again." },
         { status: 429 }
