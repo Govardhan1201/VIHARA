@@ -17,6 +17,7 @@ export async function POST(request: Request) {
         { reply: "You're sending too many requests. Please wait a moment before trying again." },
         { status: 429 }
       );
+      }
     }
 
     const { prompt } = await request.json();

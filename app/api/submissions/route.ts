@@ -27,6 +27,9 @@ export async function POST(request: Request) {
     const otpToken = data.otpToken;
     const emailKey = data.submitterEmail?.toLowerCase();
     if (otpToken && emailKey) {
+      if (!redis) {
+        return NextResponse.json({ error: 'Verification service unavailable.' }, { status: 503 });
+      }
       const storedToken = await redis.get<string>(`verified:${emailKey}`);
       if (!storedToken || storedToken !== otpToken) {
         return NextResponse.json({ error: 'Email not verified. Please verify your email with OTP first.' }, { status: 403 });

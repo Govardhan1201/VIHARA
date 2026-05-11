@@ -11,8 +11,10 @@ export async function GET(request: Request) {
     if (!city) return NextResponse.json({ error: 'City required' }, { status: 400 });
 
     const cacheKey = `weather:${city.toLowerCase()}`;
-    const cached = await redis.get<any>(cacheKey);
-    if (cached) return NextResponse.json({ ...cached, source: 'cache' });
+    if (redis) {
+      const cached = await redis.get<any>(cacheKey);
+      if (cached) return NextResponse.json({ ...cached, source: 'cache' });
+    }
 
     const apiKey = process.env.OPENWEATHER_API_KEY;
     if (!apiKey) return NextResponse.json({ error: 'No weather API key' }, { status: 500 });
@@ -33,7 +35,9 @@ export async function GET(request: Request) {
       city: data.name,
     };
 
-    await redis.setex(cacheKey, CACHE_TTL, weather);
+    if (redis) {
+      await redis.setex(cacheKey, CACHE_TTL, weather);
+    }
     return NextResponse.json({ ...weather, source: 'live' });
   } catch (err) {
     return NextResponse.json({ error: 'Weather unavailable' }, { status: 500 });
