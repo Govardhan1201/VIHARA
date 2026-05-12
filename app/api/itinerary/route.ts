@@ -15,7 +15,34 @@ export async function POST(request: Request) {
     if (!state || !days) return NextResponse.json({ error: 'State and days required' }, { status: 400 });
 
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return NextResponse.json({ error: 'AI not configured' }, { status: 500 });
+
+    if (!apiKey) {
+      // Mock Fallback using local data
+      const stateDests = destinations.filter(d => d.state === state || d.state.toLowerCase().includes(state.toLowerCase()));
+      const selectedDests = stateDests.length > 0 ? stateDests.slice(0, Math.min(stateDests.length, days)) : [];
+      
+      const mockItinerary = {
+        title: `A Soulful Journey through ${state}`,
+        tagline: "Discovering the untouched heart of the region.",
+        days: Array.from({ length: parseInt(days) }).map((_, i) => ({
+          day: i + 1,
+          title: `Exploring ${selectedDests[i]?.subZone || 'the Local Hidden Gems'}`,
+          theme: i === 0 ? "Arrival & Settling In" : "Local Discovery",
+          destinations: selectedDests[i] ? [selectedDests[i].name] : ["Local Village", "Hidden Viewpoint"],
+          activities: ["Photography", "Nature Walk", "Local Interaction"],
+          food: "Traditional local cuisine at a village home",
+          stay: "Eco-friendly boutique homestay",
+          tip: "Carry cash as many offbeat spots don't have ATMs",
+          budget: `₹${budget || '3000'}`
+        })),
+        totalBudget: `₹${(parseInt(budget || '3000') * parseInt(days)).toLocaleString()}`,
+        bestTime: "September to March",
+        packingTips: ["Comfortable walking shoes", "Reusable water bottle", "Power bank"]
+      };
+
+      await new Promise(r => setTimeout(r, 1000)); // Simulate delay
+      return NextResponse.json({ itinerary: mockItinerary, source: 'fallback' });
+    }
 
     // Get destinations for the selected state
     const stateDests = destinations.filter(d => d.state === state || d.state.toLowerCase().includes(state.toLowerCase()));
@@ -67,11 +94,23 @@ Return ONLY a valid JSON object (no markdown):
     );
 
     const data = await response.json();
-    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return NextResponse.json({ error: 'AI failed to generate itinerary' }, { status: 500 });
 
-    const itinerary = JSON.parse(jsonMatch[0]);
+    if (data.error) {
+      console.error('Gemini API error in /itinerary:', JSON.stringify(data.error));
+      return NextResponse.json({ error: `AI error: ${data.error.message}` }, { status: 500 });
+    }
+
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    console.log('Gemini itinerary raw response (first 300 chars):', rawText.slice(0, 300));
+
+    const jsonMatch = rawText.match(/```json\s*([\s\S]*?)```/) || rawText.match(/(\{[\s\S]*\})/);
+    const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]).trim() : '';
+    if (!jsonStr) {
+      console.error('No JSON found in Gemini itinerary response:', rawText.slice(0, 500));
+      return NextResponse.json({ error: 'AI failed to generate itinerary. Please try again.' }, { status: 500 });
+    }
+
+    const itinerary = JSON.parse(jsonStr);
     return NextResponse.json({ itinerary });
   } catch (err) {
     console.error('Itinerary error:', err);

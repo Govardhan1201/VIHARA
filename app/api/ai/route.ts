@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     if (!prompt) return NextResponse.json({ error: 'No prompt provided' }, { status: 400 });
 
     // Sanitize prompt — limit length to prevent abuse
-    const sanitized = String(prompt).slice(0, 500);
+    const sanitized = String(prompt).slice(0, 1500);
 
     const destSummary = destinations.map(d =>
       `${d.name} (${d.state}, ${d.subZone}) - ${d.activity}, ${d.duration} trip, Budget: ₹${d.budget}, Transport: ${d.transport}. ${d.desc}`
